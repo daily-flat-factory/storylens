@@ -1,0 +1,230 @@
+{
+  "_meta": {
+    "project": "StoryLens",
+    "description": "구텐베르크(및 개념 참조) 원문을 '서사 카드'로 구조화한 데이터. 원문 전체 청크 임베딩 대신, 태그 기반 후보 필터링 + LLM 구조 비교에 사용 (파이프라인상 3-1과 3-2 사이에 위치, 상세기획문서.md 반영 예정 항목).",
+    "principle": "원문(raw)은 근거 자료, 이 카드(구조화 데이터)는 검색·비교·생성에 실제로 사용하는 자료. 원작의 고유 인물명·사건·문장은 생성에 그대로 복제하지 않고, 추상적 구조 패턴만 참고한다.",
+    "source": "Notion > Story Lens > 참고자료 > 11-5. 구텐베르크 원문 (사용자가 직접 정리한 작품별 페이지를 구조화)",
+    "version": "1.0",
+    "last_updated": "2026-07-22"
+  },
+  "cards": [
+    {
+      "id": "christmas_carol",
+      "title_kr": "크리스마스 캐럴",
+      "title_en": "A Christmas Carol",
+      "author": "Charles Dickens",
+      "gutenberg": {"id": 46, "url": "https://www.gutenberg.org/ebooks/46"},
+      "status": "핵심_참조",
+      "connected_tags": ["regret_retry"],
+      "protagonist_goal": "고립되고 냉혹한 삶의 태도를 바꾸고 타인과 관계를 회복한다",
+      "initial_condition": "인색하고 냉혹하게 살아온 스크루지, 관계와 온기로부터 스스로 단절됨",
+      "advantage_acquisition": ["과거·현재·미래 크리스마스 유령을 통한 시간을 초월한 관찰", "자신이 외면해온 결과를 미리 목격함"],
+      "story_beats": ["단절된 삶(상실에 준하는 상태)", "유령들과의 만남(정보 획득 계기)", "과거의 잘못 재관찰", "현재 주변인의 고통 목격", "미래의 파국(쓸쓸한 죽음) 목격", "자기 직면과 태도 교정"],
+      "psychological_function": ["후회를 만회할 기회를 얻는 대리 충족", "무력감→통제감 회복", "능력 획득이 아니라 정보 획득→자기 인식→행동 교정의 연쇄"],
+      "usage_constraints": [
+        "회귀물의 '과거로 몸이 돌아감'과 완전히 같은 구조는 아님 — 시간을 되돌리는 것이 아니라 관찰을 통해 현재의 선택을 수정하는 구조",
+        "후회/재도전 태그의 '정보 획득→인식→행동교정' 연쇄를 보여주는 선례로 사용"
+      ]
+    },
+    {
+      "id": "count_of_monte_cristo",
+      "title_kr": "몬테크리스토 백작",
+      "title_en": "The Count of Monte Cristo",
+      "author": "Alexandre Dumas, Auguste Maquet",
+      "gutenberg": {"id": 1184, "url": "https://www.gutenberg.org/ebooks/1184"},
+      "status": "핵심_참조",
+      "connected_tags": ["revenge_retribution"],
+      "protagonist_goal": "자신을 파멸시킨 이들에게 복수한다",
+      "initial_condition": "음모로 인한 억울한 투옥과 삶·결혼의 상실",
+      "advantage_acquisition": ["파리아 신부에게서 전수받은 지식", "탈옥 후 획득한 막대한 보물", "'몬테크리스토 백작'이라는 새로운 사회적 정체성"],
+      "story_beats": ["부당한 상실(투옥)", "격리와 학습(감옥 내 사제와의 만남)", "능력 및 정보 획득(지식+보물)", "새 정체성 구축(백작)", "적의 세계에 침투(파리 상류사회)", "계획적 응징", "복수의 대가 인식(무고한 이들까지 피해)"],
+      "psychological_function": ["무력한 피해자가 통제권을 회복한다", "정당한 응징 욕망을 충족한다", "복수의 도덕적 한계를 드러낸다"],
+      "usage_constraints": [
+        "회귀 서사는 아니므로 재탄생 자체의 참조로 사용하지 않는다",
+        "단순 사이다가 아니라 응징의 부작용까지 포함하는 입체적 구조 — 3-4 Before/After 비교 시 'After가 지나치게 단순한 사이다로만 그려지지 않았는지' 검증 기준으로도 활용 가능"
+      ]
+    },
+    {
+      "id": "prince_and_pauper",
+      "title_kr": "왕자와 거지",
+      "title_en": "The Prince and the Pauper",
+      "author": "Mark Twain",
+      "gutenberg": {"id": 1837, "url": "https://www.gutenberg.org/ebooks/1837"},
+      "status": "핵심_참조",
+      "connected_tags": ["disguise_hidden_identity"],
+      "protagonist_goal": "(에드워드) 신분을 되찾고 원래 자리로 돌아간다 / (톰) 정체가 탄로나지 않고 역할을 수행한다",
+      "initial_condition": "외모가 같은 두 소년이 우연히 옷을 바꿔 입고 서로의 삶에 갇힘",
+      "advantage_acquisition": ["톰: 왕궁 규칙에 대한 관찰 학습", "에드워드: 빈곤과 법 집행의 현실에 대한 체득"],
+      "story_beats": ["우연한 신분 교환", "낯선 지위에 강제 배치", "정체 발각 위험 지속", "새로운 사회 규칙 학습", "타인의 삶을 통한 세계 재평가", "본래 정체성 회복"],
+      "psychological_function": ["낯선 지위 적응", "정체 발각에 대한 불안", "이중 생활을 통한 세계에 대한 재평가"],
+      "usage_constraints": [
+        "중심은 자발적 장기 사기가 아니라 우연한 신분 교환과 그 상태의 지속 — '빙의'와 동일시하지 말고 '새 몸·지위에 적응하며 정체를 숨기는 구조적 근접 사례'로만 사용"
+      ]
+    },
+    {
+      "id": "arsene_lupin",
+      "title_kr": "아르센 뤼팽",
+      "title_en": "The Extraordinary Adventures of Arsène Lupin, Gentleman-Burglar",
+      "author": "Maurice Leblanc",
+      "gutenberg": {"id": 6133, "url": "https://www.gutenberg.org/ebooks/6133"},
+      "status": "핵심_참조",
+      "connected_tags": ["informational_advantage_twist"],
+      "protagonist_goal": "정보와 계획의 우위로 상황을 설계하고 원하는 결과를 얻는다",
+      "initial_condition": "매 이야기마다 다른 위기 상황(체포, 감금 등)에서 시작",
+      "advantage_acquisition": ["변장", "심리전", "사전 계획", "정보 비대칭 설계"],
+      "story_beats": ["위기처럼 보이는 상황 제시", "독자가 모르는 이면의 계획 진행", "정체·계획의 지연 공개", "이전 사건의 의미가 뒤집히는 후행 반전"],
+      "psychological_function": ["'이미 안다'는 우월감", "상황 예측·통제 욕구 충족"],
+      "usage_constraints": [
+        "생성 장면 검증 시 '반전이 사전 단서와 연결되는가', '정보 우위가 한 번 쓰이고 사라지지 않는가'를 확인하는 참조 사례로 사용 (3-3 체크리스트의 필수사건 지속성 확인에 참고)",
+        "단일 장편이 아니라 단편집이므로 하나의 선형 플롯이 아닌 '반복 가능한 구조 패턴'으로 참고할 것"
+      ]
+    },
+    {
+      "id": "alice_in_wonderland",
+      "title_kr": "이상한 나라의 앨리스",
+      "title_en": "Alice's Adventures in Wonderland",
+      "author": "Lewis Carroll",
+      "gutenberg": {"id": 11, "url": "https://www.gutenberg.org/ebooks/11"},
+      "status": "핵심_참조",
+      "connected_tags": ["unfamiliar_world_adaptation"],
+      "protagonist_goal": "낯선 세계 속에서 자신이 설 자리를 찾는다",
+      "initial_condition": "흰 토끼를 따라 토끼굴로 떨어짐 — 규칙을 전혀 모르는 상태",
+      "advantage_acquisition": ["질문하고 시험하며 점진적으로 규칙을 발견함 (압도적 정보 우위는 획득하지 않음)"],
+      "story_beats": ["낯선 세계로의 진입", "신체·규칙의 잦은 변화 경험", "낯선 존재들과의 수수께끼 같은 대화", "부조리한 재판 경험", "완전한 이해·지배 없이 자리를 찾음"],
+      "psychological_function": ["새로운 규칙을 학습하며 존재론적으로 재배치되는 감각"],
+      "usage_constraints": [
+        "이 작품의 부조리는 명확한 게임 규칙을 '공략'하는 현대 이세계물과 다름 — 세계관 규칙의 정답 찾기가 아니라 '낯섦을 경험하고 적응하는 감각'의 참조로만 사용",
+        "정체성 모호성 태그와도 약하게 연결됨(신체 변화 + '나는 누구인가' 질문) — 다만 핵심 연결 태그는 낯선세계 적응 하나로 유지"
+      ]
+    },
+    {
+      "id": "pride_and_prejudice",
+      "title_kr": "오만과 편견",
+      "title_en": "Pride and Prejudice",
+      "author": "Jane Austen",
+      "gutenberg": {"id": 1342, "url": "https://www.gutenberg.org/ebooks/1342"},
+      "status": "핵심_참조",
+      "connected_tags": ["social_status_reversal"],
+      "protagonist_goal": "경제적 압력에 굴복하지 않고 존중받는 관계를 선택한다",
+      "initial_condition": "계급과 첫인상에 따른 상호 편견, 결혼·상속이 생존을 좌우하는 사회 구조",
+      "advantage_acquisition": ["오해 해소를 통한 정보 갱신", "자기 판단에 대한 수정"],
+      "story_beats": ["첫인상에 따른 오판", "여러 인물의 거짓·오해 노출", "정보 갱신", "자기 수정", "존중에 기반한 관계 성립"],
+      "psychological_function": ["편견 극복", "평가 권력의 재편과 관계 속 존중 회복"],
+      "usage_constraints": [
+        "**중요**: '사회적 지위 역전' 태그의 직접 사례가 아니라 보조적 구조로만 읽을 것 — 핵심 갈등은 로맨스와 계급·상속 제도이며, 웹소설식 급격한 신분 상승(무시당한 인물이 힘으로 위에 선다)과는 거리가 있음",
+        "이 태그를 감지할 때 이 작품의 '평가 권력 재편'이라는 온건한 버전과, 웹소설 특유의 '급격한 신분 상승'을 혼동하지 않도록 구조 비교 시 유의"
+      ]
+    },
+    {
+      "id": "twelve_labours_of_hercules",
+      "title_kr": "헤라클레스의 12과업",
+      "title_en": "The Twelve Labours of Hercules, Son of Jupiter & Alcmena",
+      "author": "Anonymous",
+      "gutenberg": {"id": 22529, "url": "https://www.gutenberg.org/ebooks/22529"},
+      "status": "핵심_참조",
+      "connected_tags": ["heroic_trial_sacrifice"],
+      "protagonist_goal": "유노의 저주로 촉발된 열두 과업을 완수한다",
+      "initial_condition": "유노의 질투로 촉발된 운명, 압도적 힘을 지녔으나 매 과업마다 다른 제약에 직면",
+      "advantage_acquisition": ["힘", "조력", "기지", "인내 — 매 과업마다 다른 조합으로 요구됨"],
+      "story_beats": ["최종 목표(12과업 완수) 설정", "성격이 다른 연속 시련 배치", "각 과업의 독립적 미니 아크", "누적 성취를 통한 전체 아크 완성"],
+      "psychological_function": ["압도적 능력으로 불가능해 보이는 시련을 연속 돌파하는 전능감", "속죄·희생을 위한 여정이라는 서사적 정당화"],
+      "usage_constraints": [
+        "압도적 능력이 있더라도 과업마다 제약과 해결 방식이 달라야 '치트키 반복'이 아닌 서사가 됨 — 구조 고정 생성(3-2) 시 이 원칙을 명시적으로 반영할 것"
+      ]
+    },
+    {
+      "id": "connecticut_yankee",
+      "title_kr": "코네티컷 양키",
+      "title_en": "A Connecticut Yankee in King Arthur's Court",
+      "author": "Mark Twain",
+      "gutenberg": {"id": 86, "url": "https://www.gutenberg.org/ebooks/86"},
+      "status": "핵심_참조",
+      "connected_tags": ["metacognitive_dual_perspective"],
+      "protagonist_goal": "현대 지식으로 중세 사회를 근대화(공략)한다",
+      "initial_condition": "19세기 기술자가 머리를 다친 뒤 아서왕 시대에서 깨어남",
+      "advantage_acquisition": ["일식 예언 등 현대 과학·기술 지식을 활용한 권위 획득", "왕의 핵심 조언자 지위 획득"],
+      "story_beats": ["낯선 시대로의 이동", "지식을 이용한 신뢰·지위 획득", "세계를 근대화하려는 시도(플레이어 포지션의 실행)", "기존 권력과의 충돌", "우월감의 한계 노출"],
+      "psychological_function": ["세계 안의 인물로 행동하면서도 바깥 시대의 지식으로 세계를 해석하는 이중 시선", "미래 지식을 자원처럼 계산해 영향력을 획득"],
+      "usage_constraints": [
+        "**중요**: '내가 규칙을 안다'는 플레이어 포지션이 항상 정당하거나 성공적인 것은 아니라는 비판적 검증 사례임 — StoryLens가 이 구조를 참조할 때, 메타인지/이중시선 태그를 무비판적 우월감으로만 생성하지 않도록 균형을 주는 참고 자료로 사용",
+        "현대 웹소설의 상태창·게임 시스템과 직접 같지는 않음 — 낯선 시대 내부에 몸담으며 외부 지식으로 세계를 관찰·공략한다는 구조적 근접성만 차용"
+      ]
+    },
+    {
+      "id": "bulfinch_age_of_fable",
+      "title_kr": "불핀치 신화",
+      "title_en": "Bulfinch's Mythology: The Age of Fable",
+      "author": "Thomas Bulfinch",
+      "gutenberg": {"id": 3327, "url": "https://www.gutenberg.org/ebooks/3327"},
+      "status": "보조_참고",
+      "connected_tags": ["heroic_trial_sacrifice"],
+      "protagonist_goal": null,
+      "initial_condition": null,
+      "advantage_acquisition": [],
+      "story_beats": ["반복 과업", "금기 위반", "조력자 등장", "대가 지불", "귀환"],
+      "psychological_function": ["영웅서사 구성 요소의 폭넓은 패턴 풀 제공"],
+      "usage_constraints": [
+        "빅토리아 시대의 대중적 재화(1855)이며 고대 그리스·로마 원전 직역이 아님 — 태그 정의와 예시 다양화 용도로만 사용, 특정 신화를 정본으로 확정하지 않음",
+        "헤라클레스 카드의 보조 확장 자료로만 사용 (단독 참조 텍스트로 격상하지 않음)"
+      ]
+    },
+    {
+      "id": "wuthering_heights",
+      "title_kr": "폭풍의 언덕",
+      "title_en": "Wuthering Heights",
+      "author": "Emily Brontë",
+      "gutenberg": {"id": 768, "url": "https://www.gutenberg.org/ebooks/768"},
+      "status": "검토_후_제외",
+      "connected_tags": [],
+      "protagonist_goal": "자신을 멸시한 이들과 그 자녀들에게 고통을 돌려준다",
+      "initial_condition": "고아로서 겪은 계급적 모욕과 버림받은 경험",
+      "advantage_acquisition": ["부와 권력의 획득"],
+      "story_beats": ["상실(계급적 모욕)", "지위 획득", "장기 복수", "복수가 관계와 자아를 잠식"],
+      "psychological_function": ["복수가 승리가 아니라 자기 파괴로 귀결되는 구조"],
+      "usage_constraints": [
+        "**핵심 9개 태그 풀에서 제외됨** — 로맨스·집착·세대 간 파괴가 중심이라 StoryLens MVP의 '목표 지향적 응징'(복수/응징 태그)과 정서·구조가 다름",
+        "복수의 자기파괴성과 세대 확산을 검토할 때만 보조 사례로 보존 — 태그 매칭이나 카드 비교 후보에는 포함하지 않음",
+        "이 카드는 '왜 제외했는가'를 기록하기 위해 보존 (큐레이션 판단 근거)"
+      ]
+    },
+    {
+      "id": "sherlock_holmes_adventures",
+      "title_kr": "셜록 홈즈의 모험",
+      "title_en": "The Adventures of Sherlock Holmes",
+      "author": "Arthur Conan Doyle",
+      "gutenberg": {"id": 1661, "url": "https://www.gutenberg.org/ebooks/1661"},
+      "status": "보조_참고",
+      "connected_tags": ["informational_advantage_twist"],
+      "protagonist_goal": "관찰과 추론으로 숨겨진 사건의 구조를 재구성한다",
+      "initial_condition": "독자(왓슨)와 동일하게 제한된 정보 상태에서 시작",
+      "advantage_acquisition": ["동일한 단서를 다르게 해석하는 관찰력과 추론"],
+      "story_beats": ["단서 제시", "제한된 정보 상태 유지", "해결 단계에서 단서의 의미 재구성"],
+      "psychological_function": ["정보 비대칭", "후행 재구성을 통한 지적 우월감 충족"],
+      "usage_constraints": [
+        "현재 핵심 태그 9개에는 '탐정/진실 재구성'이 없으므로 태그 매칭 후보에는 포함하지 않음 — 향후 정보우위 태그를 세분화할 때 보조 참고용으로만 보존",
+        "아르센 뤼팽 카드와 유사하게 '정보우위/반전' 검증에 참고할 수 있으나, 핵심 참조는 아르센 뤼팽 쪽을 우선함"
+      ]
+    },
+    {
+      "id": "zhuangzi_butterfly_dream",
+      "title_kr": "장자 「나비 꿈」",
+      "title_en": "Zhuangzi's Butterfly Dream (莊周夢蝶)",
+      "author": "장주(莊周) 전통적 저자, 전국시대 문헌",
+      "gutenberg": {"id": null, "url": null, "note": "구텐베르크 없음 — Chinese Text Project 등 원문 대조 링크만 존재"},
+      "status": "개념_참조",
+      "connected_tags": ["identity_ambiguity"],
+      "protagonist_goal": null,
+      "initial_condition": "장주가 꿈에서 나비가 되어 자신이 장주임을 잊음",
+      "advantage_acquisition": [],
+      "story_beats": ["꿈속에서 나비가 됨(자아를 잊음)", "깨어남", "장주가 나비 꿈을 꾼 것인지 나비가 장주를 꿈꾼 것인지 알 수 없음", "'물화(物化)' — 정체가 관점에 따라 뒤집힐 수 있음을 수용"],
+      "psychological_function": ["'어느 쪽이 진짜 나인가'라는 근원적 불안", "빙의·환생 서사에서 몸과 기억, 역할과 자아가 어긋날 때 발생하는 존재론적 긴장의 고전적 참조"],
+      "usage_constraints": [
+        "독립 작품이 아니라 《장자》 「제물론」의 마지막 짧은 우화 — 텍스트 전체가 아니라 이 대목만을 가리킴",
+        "단순히 '현실은 꿈일 수 있다'는 반전 장치가 아니라 '물화'(관점과 정체가 변화하는 것 자체)에 초점을 둘 것",
+        "동양 서사 전통 전체를 확장하는 근거로 사용하지 말고, 이 우화 하나로 한정된 개념 참조로만 사용"
+      ]
+    }
+  ],
+  "pipeline_position": "3-1(태그 진단) 이후, 3-2(구조 고정 생성) 이전에 삽입. 활성 태그로 후보 카드 필터링 → 2~4개 후보를 LLM에 전달 → LLM이 구조적 유사성 기준(초기 상실 유사성/우위 종류/목표 달성 방식/정체성 변화의 기능/결말의 정서적 보상)으로 1~2개 선택 → 추상적 구조 패턴만 추출해 3-2 프롬프트에 컨텍스트로 주입",
+  "explicitly_not_used": "원문 전체 청크 임베딩은 MVP에서 사용하지 않음 (12개 작품 규모에서는 벡터DB 인프라가 과함). 임베딩은 카드 수가 수백 개로 늘어난 이후의 확장 로드맵."
+}
