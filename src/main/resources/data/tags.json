@@ -12,30 +12,49 @@
       "name": "후회/재도전",
       "tier": "서사_모티프",
       "psychological_function": "무력감→통제감 회복, 실패를 만회하고 싶은 욕구",
-      "keywords": ["다시", "이번엔", "그때로 돌아가면", "알고 있었다"],
+      "keywords": [
+        "다시",
+        "이번엔",
+        "그때로 돌아가면",
+        "알고 있었다"
+      ],
       "reference_text": {
         "title": "크리스마스 캐럴",
         "author": "Charles Dickens",
         "gutenberg_id": 46,
         "url": "https://www.gutenberg.org/ebooks/46"
       },
-      "master_plot_stage": ["회귀_각성"],
+      "master_plot_stage": [
+        "회귀_각성"
+      ],
       "typical_functional_type": "필수사건",
-      "academic_basis": ["안상원 - 한국 웹소설의 회귀 모티프 연구", "고경은·조혜정(2022)", "김하나(2025)"]
+      "academic_basis": [
+        "안상원 - 한국 웹소설의 회귀 모티프 연구",
+        "고경은·조혜정(2022)",
+        "김하나(2025)"
+      ]
     },
     {
       "id": "revenge_retribution",
       "name": "복수/응징",
       "tier": "서사_모티프",
       "psychological_function": "부당한 피해에 대한 정의 회복 욕구, 무력한 자아→전능한 자아로의 전환",
-      "keywords": ["배신", "복수", "그날의 대가", "잊지 않았다"],
+      "keywords": [
+        "배신",
+        "복수",
+        "그날의 대가",
+        "잊지 않았다"
+      ],
       "reference_text": {
         "title": "몬테크리스토 백작",
         "author": "Alexandre Dumas",
         "gutenberg_id": 1184,
         "url": "https://www.gutenberg.org/ebooks/1184"
       },
-      "master_plot_stage": ["상실", "응징_도달"],
+      "master_plot_stage": [
+        "상실",
+        "응징_도달"
+      ],
       "typical_functional_type": "핵심목표",
       "academic_basis": []
     },
@@ -44,14 +63,22 @@
       "name": "신분위장/정체성은닉",
       "tier": "서사_모티프",
       "psychological_function": "낯선 지위 적응, 정체 발각에 대한 불안, 이중 생활",
-      "keywords": ["빙의", "책 속으로", "원작에서", "이 몸의 주인은"],
+      "keywords": [
+        "빙의",
+        "책 속으로",
+        "원작에서",
+        "이 몸의 주인은"
+      ],
       "reference_text": {
         "title": "왕자와 거지",
         "author": "Mark Twain",
         "gutenberg_id": 1837,
         "url": "https://www.gutenberg.org/ebooks/1837"
       },
-      "master_plot_stage": ["회귀_각성", "실행"],
+      "master_plot_stage": [
+        "회귀_각성",
+        "실행"
+      ],
       "typical_functional_type": "지속조건",
       "academic_basis": []
     },
@@ -60,46 +87,71 @@
       "name": "낯선세계 적응",
       "tier": "서사_모티프",
       "psychological_function": "새로운 규칙을 학습하며 존재론적으로 재배치되는 감각",
-      "keywords": ["이 세계는", "규칙이 다르다"],
+      "keywords": [
+        "이 세계는",
+        "규칙이 다르다"
+      ],
       "reference_text": {
         "title": "이상한 나라의 앨리스",
         "author": "Lewis Carroll",
         "gutenberg_id": 11,
         "url": "https://www.gutenberg.org/ebooks/11"
       },
-      "master_plot_stage": ["회귀_각성"],
+      "master_plot_stage": [
+        "회귀_각성"
+      ],
       "typical_functional_type": "필수사건",
-      "academic_basis": ["안상원(2018) - 마스터플롯 연구"]
+      "academic_basis": [
+        "안상원(2018) - 마스터플롯 연구"
+      ]
     },
     {
       "id": "informational_advantage_twist",
       "name": "정보우위/반전",
       "tier": "전개_기능",
-      "psychological_function": "\"이미 안다\"는 우월감, 상황 예측·통제 욕구",
-      "keywords": ["사실", "알고 보니", "이미 알고 있었다"],
+      "psychological_function": "\"이미 안다\"는 우월감, 상황 예측·통제 욕구 — 책빙의물처럼 '이미 읽은 이야기의 전개를 알고 있다'는 사전 지식도 핵심 근거로 포함 (단순 성격 묘사인 '냉철한 판단력' 등과 혼동하지 말 것)",
+      "keywords": [
+        "사실",
+        "알고 보니",
+        "이미 알고 있었다",
+        "읽었던",
+        "원작",
+        "이야기 속에서"
+      ],
       "reference_text": {
         "title": "아르센 뤼팽",
         "author": "Maurice Leblanc",
         "gutenberg_id": 6133,
         "url": "https://www.gutenberg.org/ebooks/6133"
       },
-      "master_plot_stage": ["회귀_각성", "실행"],
+      "master_plot_stage": [
+        "회귀_각성",
+        "실행"
+      ],
       "typical_functional_type": "지속조건",
-      "academic_basis": ["서재인(2025) - 시스템 모티프 분석"]
+      "academic_basis": [
+        "서재인(2025) - 시스템 모티프 분석"
+      ]
     },
     {
       "id": "social_status_reversal",
       "name": "사회적 지위 역전",
       "tier": "전개_기능",
       "psychological_function": "편견 극복, 관계 내 권력 재편",
-      "keywords": ["무시당했던", "이제는"],
+      "keywords": [
+        "무시당했던",
+        "이제는"
+      ],
       "reference_text": {
         "title": "오만과 편견",
         "author": "Jane Austen",
         "gutenberg_id": 1342,
         "url": "https://www.gutenberg.org/ebooks/1342"
       },
-      "master_plot_stage": ["목표_설정", "응징_도달"],
+      "master_plot_stage": [
+        "목표_설정",
+        "응징_도달"
+      ],
       "typical_functional_type": "핵심목표",
       "academic_basis": []
     },
@@ -108,14 +160,22 @@
       "name": "영웅서사/시련과 희생",
       "tier": "전개_기능",
       "psychological_function": "압도적 능력으로 불가능해 보이는 시련을 연속 돌파하는 전능감, 그 과정이 단순 치트가 아니라 속죄·희생을 위한 여정이라는 서사적 정당화 (먼치킨물의 심층 구조)",
-      "keywords": ["이 정도쯤이야", "다음 시련", "대가를 치러야", "불가능해 보이지만"],
+      "keywords": [
+        "이 정도쯤이야",
+        "다음 시련",
+        "대가를 치러야",
+        "불가능해 보이지만"
+      ],
       "reference_text": {
         "title": "헤라클레스의 12과업",
         "author": "Anonymous",
         "gutenberg_id": 22529,
         "url": "https://www.gutenberg.org/ebooks/22529"
       },
-      "master_plot_stage": ["실행", "응징_도달"],
+      "master_plot_stage": [
+        "실행",
+        "응징_도달"
+      ],
       "typical_functional_type": "필수사건",
       "academic_basis": []
     },
@@ -124,7 +184,17 @@
       "name": "메타인지/이중시선 (플레이어 포지션)",
       "tier": "전역_제약_주제",
       "psychological_function": "게임 시스템 프레임 안에서 몰입과 냉정한 계산이 동시에 작동하는 이중화된 자아 감각 — 인물 역할을 수행하면서도 게임 바깥 관찰자처럼 손익을 따지는 상인적·관조적 태도",
-      "keywords": ["레벨업", "다음 단계", "손익을 따지면", "이건 게임이다", "스탯"],
+      "keywords": [
+        "레벨업",
+        "다음 단계",
+        "손익을 따지면",
+        "이건 게임이다",
+        "스탯",
+        "시스템 메시지",
+        "임무",
+        "루트",
+        "미션 완수"
+      ],
       "reference_text": {
         "title": "코네티컷 양키",
         "author": "Mark Twain",
@@ -132,16 +202,23 @@
         "url": "https://www.gutenberg.org/ebooks/86",
         "note": "낯선 세계에 몸담으면서도 자신만 아는 지식으로 그 세계를 관찰·공략하는 구조가 근접"
       },
-      "master_plot_stage": ["실행"],
+      "master_plot_stage": [
+        "실행"
+      ],
       "typical_functional_type": "톤조건",
-      "academic_basis": ["조형래(2022) - 웹소설의 사상: 전지적 독자 시점"]
+      "academic_basis": [
+        "조형래(2022) - 웹소설의 사상: 전지적 독자 시점"
+      ]
     },
     {
       "id": "identity_ambiguity",
       "name": "정체성 모호성",
       "tier": "전역_제약_주제",
       "psychological_function": "\"어느 쪽이 진짜 나인가\"라는 근원적 불안",
-      "keywords": ["진짜 나", "원래의 나"],
+      "keywords": [
+        "진짜 나",
+        "원래의 나"
+      ],
       "reference_text": {
         "title": "장자 나비 꿈",
         "author": null,
@@ -149,13 +226,26 @@
         "url": null,
         "note": "단일 우화, 특정 Gutenberg 텍스트 없음 — 개념 참조용"
       },
-      "master_plot_stage": ["전_단계"],
+      "master_plot_stage": [
+        "전_단계"
+      ],
       "typical_functional_type": "톤조건",
       "academic_basis": []
     }
   ],
-  "master_plot_stages": ["상실", "회귀_각성", "목표_설정", "실행", "응징_도달"],
-  "functional_types": ["핵심목표", "필수사건", "지속조건", "톤조건"],
+  "master_plot_stages": [
+    "상실",
+    "회귀_각성",
+    "목표_설정",
+    "실행",
+    "응징_도달"
+  ],
+  "functional_types": [
+    "핵심목표",
+    "필수사건",
+    "지속조건",
+    "톤조건"
+  ],
   "activation_threshold": 40,
   "score_display_note": "사용자 화면에는 원점수(0~100)를 그대로 노출하지 말 것 — '강하게 감지/중간 감지/약하게 감지' + 근거 문구로 표시 (3-1 참조)"
 }
