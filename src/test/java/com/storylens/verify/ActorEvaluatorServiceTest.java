@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -98,6 +99,7 @@ class ActorEvaluatorServiceTest {
         assertEquals("PASS", response.overallPassFail());
         assertEquals(7, response.checklist().size());
         verify(call).content();
+        verify(request).user(contains("제3자가 전생 사건을 확인·자백하면 FAIL"));
         verify(request).options(argThat(
                 options -> "gpt-5.6-terra".equals(options.build().getModel())));
     }
