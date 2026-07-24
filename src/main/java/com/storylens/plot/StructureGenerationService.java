@@ -2,6 +2,7 @@ package com.storylens.plot;
 
 import static com.storylens.ai.JsonResponseSupport.clean;
 import static com.storylens.ai.JsonResponseSupport.options;
+import static com.storylens.ai.JsonResponseSupport.paragraphCount;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -175,9 +176,10 @@ public class StructureGenerationService {
                     || scene.text() == null || scene.text().isBlank()) {
                 throw new IllegalArgumentException("5개 장면의 단계명과 텍스트가 올바르지 않습니다.");
             }
-            int paragraphCount = scene.text().strip().split("\\R\\s*\\R").length;
-            if (paragraphCount < 2 || paragraphCount > 4) {
-                throw new IllegalArgumentException("각 장면은 2~4문단이어야 합니다.");
+            int paragraphs = paragraphCount(scene.text());
+            if (paragraphs < 2 || paragraphs > 4) {
+                throw new IllegalArgumentException(
+                        scene.stage() + " 장면은 2~4문단이어야 합니다. 실제: " + paragraphs);
             }
         }
     }

@@ -12,9 +12,13 @@ import org.springframework.web.server.ResponseStatusException;
 public class StructureGenerationController {
 
     private final StructureGenerationService structureGenerationService;
+    private final NaiveGenerationService naiveGenerationService;
 
-    public StructureGenerationController(StructureGenerationService structureGenerationService) {
+    public StructureGenerationController(
+            StructureGenerationService structureGenerationService,
+            NaiveGenerationService naiveGenerationService) {
         this.structureGenerationService = structureGenerationService;
+        this.naiveGenerationService = naiveGenerationService;
     }
 
     @PostMapping("/generate")
@@ -23,6 +27,14 @@ public class StructureGenerationController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "input은 비어 있을 수 없습니다.");
         }
         return structureGenerationService.generate(request.input());
+    }
+
+    @PostMapping("/generate-naive")
+    public NaiveGenerationResponse generateNaive(@RequestBody GenerationRequest request) {
+        if (request == null || request.input() == null || request.input().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "input은 비어 있을 수 없습니다.");
+        }
+        return naiveGenerationService.generate(request.input());
     }
 
     public record GenerationRequest(String input) {

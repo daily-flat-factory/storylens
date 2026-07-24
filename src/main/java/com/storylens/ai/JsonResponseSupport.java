@@ -29,4 +29,10 @@ public final class JsonResponseSupport {
                 .replaceFirst("\\s*```$", "")
                 .strip();
     }
+
+    public static int paragraphCount(String text) {
+        String stripped = text.strip();
+        String[] paragraphs = stripped.split("\\R\\s*\\R");
+        return paragraphs.length > 1 ? paragraphs.length : stripped.split("\\R").length;
+    }
 }
