@@ -141,6 +141,7 @@ class StructureGenerationServiceTest {
 
         GenerationResponse response = service.generate("테스트 입력");
 
+        assertEquals(diagnosis, response.diagnosis());
         assertEquals("FAIL", response.verification().overallPassFail());
         assertEquals(2, response.verification().regenerationCount());
         verify(call, times(3)).content();

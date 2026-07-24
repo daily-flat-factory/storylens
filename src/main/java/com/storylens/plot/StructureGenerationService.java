@@ -98,7 +98,8 @@ public class StructureGenerationService {
         }
         return new GenerationResponse(
                 outline.scenes(),
-                verification.withRegenerationCount(regenerationCount));
+                verification.withRegenerationCount(regenerationCount),
+                diagnosis);
     }
 
     private GenerationResponse generateOutline(String prompt) {
