@@ -18,6 +18,8 @@ import com.storylens.cardselection.CardSelectionService;
 import com.storylens.plot.PlotStructureMapper.StructureContext;
 import com.storylens.tag.DiagnosisResponse;
 import com.storylens.tag.TagDiagnosisService;
+import com.storylens.verify.ActorEvaluatorService;
+import com.storylens.verify.VerificationResponse;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
@@ -29,6 +31,7 @@ public class StructureGenerationService {
     private static final String PROMPT_PATH = "prompts/structure-generation.txt";
     private static final String FEW_SHOT_PATH = "prompts/style-few-shot-example.txt";
     private static final int MAX_ATTEMPTS = 3;
+    private static final int MAX_REGENERATIONS = 2;
     private static final List<String> STAGES =
             List.of("상실", "회귀·각성", "목표 설정", "실행", "응징·도달");
     private static final List<String> PLACEHOLDERS = List.of(
@@ -48,6 +51,7 @@ public class StructureGenerationService {
     private final TagDiagnosisService tagDiagnosisService;
     private final CardSelectionService cardSelectionService;
     private final PlotStructureMapper structureMapper;
+    private final ActorEvaluatorService actorEvaluatorService;
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final String promptTemplate;
@@ -57,11 +61,13 @@ public class StructureGenerationService {
             TagDiagnosisService tagDiagnosisService,
             CardSelectionService cardSelectionService,
             PlotStructureMapper structureMapper,
+            ActorEvaluatorService actorEvaluatorService,
             ChatClient.Builder chatClientBuilder,
             ObjectMapper objectMapper) {
         this.tagDiagnosisService = tagDiagnosisService;
         this.cardSelectionService = cardSelectionService;
         this.structureMapper = structureMapper;
+        this.actorEvaluatorService = actorEvaluatorService;
         this.chatClient = chatClientBuilder.build();
         this.objectMapper = objectMapper;
         this.promptTemplate = load(PROMPT_PATH);
@@ -77,6 +83,21 @@ public class StructureGenerationService {
         StructureContext context = structureMapper.map(diagnosis);
         String prompt = renderPrompt(input, cardSelection, context);
 
+        GenerationResponse outline = generateOutline(prompt);
+        VerificationResponse verification =
+                actorEvaluatorService.evaluate(context, outline.scenes());
+        int regenerationCount = 0;
+        while (!verification.passed() && regenerationCount < MAX_REGENERATIONS) {
+            regenerationCount++;
+            outline = generateOutline(withCorrection(prompt, verification.correctionInstruction()));
+            verification = actorEvaluatorService.evaluate(context, outline.scenes());
+        }
+        return new GenerationResponse(
+                outline.scenes(),
+                verification.withRegenerationCount(regenerationCount));
+    }
+
+    private GenerationResponse generateOutline(String prompt) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
                     .user(prompt)
@@ -95,6 +116,12 @@ public class StructureGenerationService {
         throw new ResponseStatusException(
                 HttpStatus.BAD_GATEWAY,
                 "LLM이 3회 연속 유효한 구조 생성 JSON을 반환하지 않았습니다.");
+    }
+
+    private String withCorrection(String prompt, String correctionInstruction) {
+        return prompt
+                + "\n\n[Actor-Evaluator 교정 지시 — 반드시 반영]\n"
+                + correctionInstruction;
     }
 
     private String renderPrompt(
