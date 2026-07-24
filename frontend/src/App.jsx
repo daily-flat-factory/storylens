@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 
 const TAG_NAMES = {
   regret_retry: '후회/재도전',
@@ -28,7 +29,11 @@ const failureMessage = (outcome) =>
     ? '응답이 지연되고 있습니다. 잠시 후 다시 시도해 주세요.'
     : outcome.reason?.message || '요청 중 오류가 발생했습니다.'
 
+const strengthLevel = (strength) =>
+  strength?.startsWith('강하게') ? 3 : strength?.startsWith('중간') ? 2 : strength?.startsWith('약하게') ? 1 : 0
+
 function App() {
+  const reduceMotion = useReducedMotion()
   const [input, setInput] = useState('')
   const [afterResult, setAfterResult] = useState(null)
   const [beforeResult, setBeforeResult] = useState(null)
@@ -82,143 +87,246 @@ function App() {
     setScreen('input')
   }
 
+  const screenMotion = {
+    initial: { opacity: 0, y: reduceMotion ? 0 : 16 },
+    animate: { opacity: 1, y: 0 },
+    exit: { opacity: 0, y: reduceMotion ? 0 : -10 },
+    transition: { duration: reduceMotion ? 0 : 0.35 },
+  }
+  const listMotion = {
+    animate: { transition: { staggerChildren: reduceMotion ? 0 : 0.09 } },
+  }
+  const itemMotion = {
+    initial: { opacity: 0, y: reduceMotion ? 0 : 14 },
+    animate: { opacity: 1, y: 0 },
+  }
+
   return (
-    <main className="min-h-screen bg-slate-950 px-4 py-10 text-slate-100">
-      <div className="mx-auto max-w-7xl">
-        <header className="mb-8">
-          <p className="text-sm font-semibold text-cyan-400">웹소설 창작 가드레일</p>
-          <h1 className="text-3xl font-bold">StoryLens</h1>
+    <main className="app-shell">
+      <div className="ambient-glow ambient-glow-left" />
+      <div className="ambient-glow ambient-glow-right" />
+      <div className="app-frame">
+        <header className="app-header">
+          <div>
+            <p className="eyebrow"><span>◆</span> 웹소설 창작 가드레일</p>
+            <h1>Story<span>Lens</span></h1>
+          </div>
+          <div className="system-badge" aria-label="시스템 준비 완료">
+            <span className="status-dot" />
+            SYSTEM READY
+          </div>
         </header>
 
-        {screen === 'input' && (
-          <form onSubmit={submit} className="space-y-4 rounded-lg bg-slate-900 p-6">
-            <label htmlFor="story-input" className="block text-lg font-semibold">
-              이야기 설정
-            </label>
-            <textarea
-              id="story-input"
-              required
-              rows="10"
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              placeholder="분석할 웹소설 설정을 입력하세요."
-              className="w-full rounded border border-slate-700 bg-slate-950 p-4"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="rounded bg-cyan-600 px-5 py-3 font-semibold disabled:opacity-50"
-            >
-              {loading ? 'Before와 After를 동시에 생성 중입니다…' : 'StoryLens 비교 시작'}
-            </button>
-            {loading && (
-              <p className="text-sm text-slate-400" role="status">
-                두 결과를 함께 생성하므로 최대 몇 분이 걸릴 수 있습니다.
-              </p>
-            )}
-          </form>
-        )}
-
-        {screen === 'diagnosis' && afterResult && (
-          <section className="space-y-5">
-            <h2 className="text-2xl font-bold">진단 결과</h2>
-            <div className="grid gap-4 md:grid-cols-2">
-              {afterResult.diagnosis.tag_results.map((tag) => (
-                <article key={tag.tag_id} className="rounded-lg bg-slate-900 p-5">
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <h3 className="font-semibold">{TAG_NAMES[tag.tag_id] || tag.tag_id}</h3>
-                    <span className="text-sm text-cyan-300">
-                      {tag.display_strength || '미감지'}
-                    </span>
-                  </div>
-                  <ul className="list-disc space-y-1 pl-5 text-sm text-slate-300">
-                    {tag.evidence.map((evidence) => <li key={evidence}>{evidence}</li>)}
-                  </ul>
-                </article>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => setScreen('result')}
-              className="rounded bg-cyan-600 px-5 py-3 font-semibold"
-            >
-              Before/After 비교 보기
-            </button>
-          </section>
-        )}
-
-        {screen === 'result' && (
-          <section className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <h2 className="text-2xl font-bold">Before/After 비교</h2>
-              {afterResult && (
-                <button
-                  type="button"
-                  onClick={download}
-                  className="rounded bg-cyan-600 px-4 py-2 font-semibold"
+        <AnimatePresence mode="wait">
+          {screen === 'input' && (
+            <motion.form key="input" onSubmit={submit} className="input-panel" {...screenMotion}>
+              <div className="panel-heading">
+                <span className="panel-number">01</span>
+                <div>
+                  <p>STORY SCAN</p>
+                  <h2>이야기 설정을 입력하세요</h2>
+                </div>
+              </div>
+              <label htmlFor="story-input" className="sr-only">이야기 설정</label>
+              <div className="textarea-frame">
+                <span className="corner corner-tl" />
+                <span className="corner corner-tr" />
+                <span className="corner corner-bl" />
+                <span className="corner corner-br" />
+                <textarea
+                  id="story-input"
+                  required
+                  rows="10"
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder="주인공, 상황, 그리고 이루려는 목표를 입력하세요."
+                />
+                <span className="input-hint">INPUT / NARRATIVE PROFILE</span>
+              </div>
+              <button type="submit" disabled={loading} className="primary-button">
+                {loading ? '분석 시퀀스 실행 중' : 'StoryLens 비교 시작'}
+                <span aria-hidden="true">{loading ? '···' : '→'}</span>
+              </button>
+              {loading && (
+                <motion.div
+                  className="loading-panel"
+                  role="status"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
                 >
-                  After 텍스트 다운로드
-                </button>
+                  <motion.div
+                    className="loader-orbit"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'linear' }}
+                  >
+                    <span />
+                  </motion.div>
+                  <div>
+                    <strong>트로프 신호를 추적하고 있습니다</strong>
+                    <p>Before와 After를 함께 생성하므로 최대 몇 분이 걸릴 수 있습니다.</p>
+                    <div className="scan-line"><motion.span animate={{ x: ['-100%', '380%'] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} /></div>
+                  </div>
+                </motion.div>
               )}
-            </div>
+            </motion.form>
+          )}
 
-            <div className="grid items-start gap-6 lg:grid-cols-2">
-              <section aria-labelledby="before-title" className="space-y-4">
-                <div className="rounded-lg border border-slate-700 p-4">
-                  <h3 id="before-title" className="text-xl font-bold">Before · 일반 생성</h3>
-                  <p className="text-sm text-slate-400">구조 가드레일과 자체 검증 없음</p>
+          {screen === 'diagnosis' && afterResult && (
+            <motion.section key="diagnosis" className="diagnosis-screen" {...screenMotion}>
+              <div className="screen-title">
+                <div>
+                  <p className="eyebrow"><span>◆</span> TROPE ANALYSIS COMPLETE</p>
+                  <h2>서사 상태창</h2>
                 </div>
-                {errors.before && <p className="text-red-400" role="alert">{errors.before}</p>}
-                {beforeResult?.scenes.map((scene) => (
-                  <article key={scene.label} className="rounded-lg bg-slate-900 p-5">
-                    <h4 className="mb-3 text-lg font-semibold">{scene.label}</h4>
-                    <p className="whitespace-pre-wrap leading-7 text-slate-300">{scene.text}</p>
-                  </article>
-                ))}
-              </section>
+                <span className="result-count">09 TAGS SCANNED</span>
+              </div>
 
-              <section aria-labelledby="after-title" className="space-y-4">
-                <div className="rounded-lg border border-cyan-700 p-4">
-                  <h3 id="after-title" className="text-xl font-bold">After · StoryLens</h3>
-                  <p className="text-sm text-slate-400">구조 진단·고정 조건·자체 검증 적용</p>
+              <div className="status-window">
+                <div className="status-window-top">
+                  <span>STORYLENS / NARRATIVE STATUS</span>
+                  <span>ACTIVE SIGNALS HIGHLIGHTED</span>
                 </div>
-                {errors.after && <p className="text-red-400" role="alert">{errors.after}</p>}
-                {afterResult?.scenes.map((scene, index) => (
-                  <article key={scene.stage} className="rounded-lg bg-slate-900 p-5">
-                    <h4 className="mb-3 text-lg font-semibold">
-                      {index + 1}. {scene.stage}
-                    </h4>
-                    <p className="whitespace-pre-wrap leading-7 text-slate-300">{scene.text}</p>
-                  </article>
-                ))}
+                <motion.div className="tag-grid" variants={listMotion} initial="initial" animate="animate">
+                  {afterResult.diagnosis.tag_results.map((tag, index) => {
+                    const strength = tag.is_active ? tag.display_strength : '미감지'
+                    const level = strengthLevel(strength)
+                    return (
+                      <motion.article
+                        key={tag.tag_id}
+                        className={`tag-card ${tag.is_active ? 'tag-active' : 'tag-inactive'}`}
+                        variants={itemMotion}
+                        transition={{ duration: 0.35 }}
+                      >
+                        <div className="tag-index">{String(index + 1).padStart(2, '0')}</div>
+                        <div className="tag-body">
+                          <div className="tag-heading">
+                            <h3>{TAG_NAMES[tag.tag_id] || tag.tag_id}</h3>
+                            <span className="tag-state">{tag.is_active ? 'DETECTED' : 'DORMANT'}</span>
+                          </div>
+                          <div className="strength-row">
+                            <span>{strength}</span>
+                            <div className="strength-gauge" aria-label={`감지 강도: ${strength}`}>
+                              {[1, 2, 3].map((step) => <i key={step} className={step <= level ? 'filled' : ''} />)}
+                            </div>
+                          </div>
+                          {tag.evidence.length > 0 && (
+                            <ul className="evidence-list">
+                              {tag.evidence.map((evidence) => <li key={evidence}>“{evidence}”</li>)}
+                            </ul>
+                          )}
+                        </div>
+                      </motion.article>
+                    )
+                  })}
+                </motion.div>
+              </div>
+              <button type="button" onClick={() => setScreen('result')} className="primary-button next-button">
+                Before / After 비교 보기 <span aria-hidden="true">→</span>
+              </button>
+            </motion.section>
+          )}
 
+          {screen === 'result' && (
+            <motion.section key="result" className="comparison-screen" {...screenMotion}>
+              <div className="screen-title comparison-heading">
+                <div>
+                  <p className="eyebrow"><span>◆</span> NARRATIVE COMPARISON</p>
+                  <h2>Before / After</h2>
+                </div>
                 {afterResult && (
-                  <section className="rounded-lg border border-slate-700 p-5">
-                    <h4 className="mb-4 text-lg font-semibold">
-                      자체 검증: {afterResult.verification.overall_pass_fail}
-                    </h4>
-                    <ul className="space-y-3">
-                      {afterResult.verification.checklist.map((item) => (
-                        <li key={item.item_number}>
-                          <strong>{item.item_number}. {item.item} — {item.pass_fail}</strong>
-                          <p className="text-sm text-slate-400">{item.evidence}</p>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
+                  <button type="button" onClick={download} className="secondary-button">
+                    After 텍스트 다운로드 <span aria-hidden="true">↓</span>
+                  </button>
                 )}
-              </section>
-            </div>
+              </div>
 
-            <button
-              type="button"
-              onClick={reset}
-              className="rounded border border-slate-600 px-4 py-2"
-            >
-              새 설정 분석하기
-            </button>
-          </section>
-        )}
+              <div className="comparison-grid">
+                <motion.section
+                  aria-labelledby="before-title"
+                  className="story-column before-column"
+                  variants={listMotion}
+                  initial="initial"
+                  animate="animate"
+                >
+                  <motion.div className="column-header" variants={itemMotion}>
+                    <span className="column-mark">B</span>
+                    <div>
+                      <h3 id="before-title">Before <small>일반 생성</small></h3>
+                      <p>구조 가드레일과 자체 검증 없음</p>
+                    </div>
+                  </motion.div>
+                  {errors.before && <p className="error-message" role="alert">{errors.before}</p>}
+                  {beforeResult?.scenes.map((scene, index) => (
+                    <motion.article key={scene.label} className="scene-card" variants={itemMotion}>
+                      <span className="scene-number">{String(index + 1).padStart(2, '0')}</span>
+                      <h4>{scene.label}</h4>
+                      <p>{scene.text}</p>
+                    </motion.article>
+                  ))}
+                </motion.section>
+
+                <motion.section
+                  aria-labelledby="after-title"
+                  className="story-column after-column"
+                  variants={listMotion}
+                  initial="initial"
+                  animate="animate"
+                >
+                  <motion.div className="column-header" variants={itemMotion}>
+                    <span className="column-mark">A</span>
+                    <div>
+                      <h3 id="after-title">After <small>StoryLens</small></h3>
+                      <p>구조 진단 · 고정 조건 · 자체 검증 적용</p>
+                    </div>
+                    <span className="guardrail-badge">GUARDRAIL ON</span>
+                  </motion.div>
+                  {errors.after && <p className="error-message" role="alert">{errors.after}</p>}
+                  {afterResult?.scenes.map((scene, index) => (
+                    <motion.article key={scene.stage} className="scene-card" variants={itemMotion}>
+                      <span className="scene-number">{String(index + 1).padStart(2, '0')}</span>
+                      <h4>{scene.stage}</h4>
+                      <p>{scene.text}</p>
+                    </motion.article>
+                  ))}
+
+                  {afterResult && (
+                    <motion.section className="verification-panel" variants={itemMotion}>
+                      <div className="verification-heading">
+                        <div>
+                          <span>ACTOR–EVALUATOR</span>
+                          <h4>가드레일 자체 검증</h4>
+                        </div>
+                        <strong className={afterResult.verification.overall_pass_fail === 'PASS' ? 'pass' : 'fail'}>
+                          {afterResult.verification.overall_pass_fail === 'PASS' ? '✓' : '✕'} {afterResult.verification.overall_pass_fail}
+                        </strong>
+                      </div>
+                      <motion.ul variants={listMotion}>
+                        {afterResult.verification.checklist.map((item) => {
+                          const passed = item.pass_fail === 'PASS'
+                          return (
+                            <motion.li key={item.item_number} variants={itemMotion}>
+                              <span className={`check-icon ${passed ? 'pass' : 'fail'}`} aria-label={item.pass_fail}>
+                                {passed ? '✓' : '✕'}
+                              </span>
+                              <div>
+                                <strong>{String(item.item_number).padStart(2, '0')} · {item.item}</strong>
+                                <p>{item.evidence}</p>
+                              </div>
+                            </motion.li>
+                          )
+                        })}
+                      </motion.ul>
+                    </motion.section>
+                  )}
+                </motion.section>
+              </div>
+
+              <button type="button" onClick={reset} className="secondary-button reset-button">
+                ← 새 설정 분석하기
+              </button>
+            </motion.section>
+          )}
+        </AnimatePresence>
       </div>
     </main>
   )
