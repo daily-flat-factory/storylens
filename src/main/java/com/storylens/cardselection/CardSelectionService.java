@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.storylens.tag.DiagnosisResponse;
-import com.storylens.tag.TagDiagnosisService;
 
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
@@ -30,26 +29,22 @@ public class CardSelectionService {
     private static final String CANDIDATE_CARDS_PLACEHOLDER = "{{candidate_cards}}";
     private static final int MAX_ATTEMPTS = 3;
 
-    private final TagDiagnosisService tagDiagnosisService;
     private final NarrativeCardStore cardStore;
     private final ChatClient chatClient;
     private final ObjectMapper objectMapper;
     private final String promptTemplate;
 
     public CardSelectionService(
-            TagDiagnosisService tagDiagnosisService,
             NarrativeCardStore cardStore,
             ChatClient.Builder chatClientBuilder,
             ObjectMapper objectMapper) {
-        this.tagDiagnosisService = tagDiagnosisService;
         this.cardStore = cardStore;
         this.chatClient = chatClientBuilder.build();
         this.objectMapper = objectMapper;
         this.promptTemplate = loadPromptTemplate();
     }
 
-    public CardSelectionResponse select(String input) {
-        DiagnosisResponse diagnosis = tagDiagnosisService.diagnose(input);
+    public CardSelectionResponse select(String input, DiagnosisResponse diagnosis) {
         Set<String> activeTagIds = diagnosis.tagResults().stream()
                 .filter(DiagnosisResponse.TagResult::active)
                 .map(DiagnosisResponse.TagResult::tagId)

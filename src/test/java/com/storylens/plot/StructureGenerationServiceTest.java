@@ -1,8 +1,8 @@
-package com.storylens.cardselection;
+package com.storylens.plot;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -10,39 +10,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.storylens.cardselection.CardSelectionResponse;
+import com.storylens.cardselection.CardSelectionService;
 import com.storylens.tag.DiagnosisResponse;
+import com.storylens.tag.TagDefinitionStore;
+import com.storylens.tag.TagDiagnosisService;
 
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
-class CardSelectionServiceTest {
-
-    @Test
-    void keepsFourCandidatesWithTheMostMatchingTags() {
-        NarrativeCardStore store = new NarrativeCardStore(JsonMapper.builder().build());
-        JsonNode monteCristo = store.candidates(Set.of("revenge_retribution")).getFirst();
-        monteCristo.withArray("connected_tags").add("informational_advantage_twist");
-
-        List<JsonNode> candidates = store.candidates(Set.of(
-                "revenge_retribution",
-                "regret_retry",
-                "informational_advantage_twist",
-                "social_status_reversal",
-                "metacognitive_dual_perspective"));
-
-        assertEquals(4, candidates.size());
-        assertEquals("count_of_monte_cristo", candidates.getFirst().path("id").asString());
-        assertFalse(candidates.stream()
-                .anyMatch(card -> "wuthering_heights".equals(card.path("id").asString())));
-    }
+class StructureGenerationServiceTest {
 
     @Test
     void stopsAfterThreeInvalidJsonResponses() {
@@ -56,23 +39,31 @@ class CardSelectionServiceTest {
         when(request.call()).thenReturn(call);
         when(call.content()).thenReturn("not-json");
 
+        TagDiagnosisService diagnosisService = mock(TagDiagnosisService.class);
+        CardSelectionService cardSelectionService = mock(CardSelectionService.class);
         DiagnosisResponse diagnosis = new DiagnosisResponse(List.of(
                 new DiagnosisResponse.TagResult(
                         "revenge_retribution",
                         80,
                         true,
-                        List.of("배신"),
+                        List.of("배신자를 응징한다"),
                         "강하게 감지")));
+        when(diagnosisService.diagnose(anyString())).thenReturn(diagnosis);
+        when(cardSelectionService.select(anyString(), any()))
+                .thenReturn(new CardSelectionResponse(
+                        List.of(), List.of(), List.of(), List.of()));
 
         ObjectMapper objectMapper = JsonMapper.builder().build();
-        CardSelectionService service = new CardSelectionService(
-                new NarrativeCardStore(objectMapper),
+        StructureGenerationService service = new StructureGenerationService(
+                diagnosisService,
+                cardSelectionService,
+                new PlotStructureMapper(new TagDefinitionStore(objectMapper)),
                 builder,
                 objectMapper);
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> service.select("테스트 입력", diagnosis));
+                () -> service.generate("테스트 입력"));
 
         assertEquals(HttpStatus.BAD_GATEWAY, exception.getStatusCode());
         verify(call, times(3)).content();

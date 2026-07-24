@@ -1,4 +1,4 @@
-package com.storylens.cardselection;
+package com.storylens.plot;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,23 +9,22 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api")
-public class CardSelectionController {
+public class StructureGenerationController {
 
-    private final CardSelectionService cardSelectionService;
+    private final StructureGenerationService structureGenerationService;
 
-    public CardSelectionController(CardSelectionService cardSelectionService) {
-        this.cardSelectionService = cardSelectionService;
+    public StructureGenerationController(StructureGenerationService structureGenerationService) {
+        this.structureGenerationService = structureGenerationService;
     }
 
-    // 세션 29에서 구조 고정 생성과 하나의 통합 엔드포인트로 합칠 임시 테스트용 API다.
-    @PostMapping("/select-card")
-    public CardSelectionResponse select(@RequestBody SelectionRequest request) {
+    @PostMapping("/generate")
+    public GenerationResponse generate(@RequestBody GenerationRequest request) {
         if (request == null || request.input() == null || request.input().isBlank()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "input은 비어 있을 수 없습니다.");
         }
-        return cardSelectionService.select(request.input());
+        return structureGenerationService.generate(request.input());
     }
 
-    public record SelectionRequest(String input) {
+    public record GenerationRequest(String input) {
     }
 }
