@@ -39,7 +39,11 @@ public class NaiveGenerationService {
         String prompt = """
                 다음 설정을 바탕으로 웹소설 형식의 짧은 이야기를 5개 장면으로 써주세요: %s
 
-                각 장면은 2~4문단으로 작성하고, 아래 JSON 형식으로만 응답하세요.
+                각 장면은 3문단을 목표로 하되 반드시 2~4문단으로 작성하세요.
+                한 장면이라도 5문단 이상이면 응답 전체가 실패 처리됩니다.
+                text 안의 문단 사이는 \\n\\n으로만 구분하고, 각 text에 \\n\\n을 1~3개만 넣으세요.
+                대사나 시스템 문구도 별도 문단으로 쪼개지 말고 앞뒤 문장과 같은 문단에 포함하세요.
+                아래 JSON 형식으로만 응답하세요.
                 {"scenes":[
                   {"label":"장면1","text":"..."},
                   {"label":"장면2","text":"..."},
@@ -63,6 +67,7 @@ public class NaiveGenerationService {
             } catch (JacksonException | IllegalArgumentException exception) {
                 logger.warn("유효하지 않은 Before 생성 JSON 응답 (시도 {}/{}): {}",
                         attempt, MAX_ATTEMPTS, exception.getMessage());
+                logger.debug("실패한 Before 생성 LLM 원문:\n{}", content);
             }
         }
         throw new ResponseStatusException(

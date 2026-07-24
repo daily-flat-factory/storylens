@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -83,6 +84,10 @@ class TagDiagnosisServiceTest {
 
         assertEquals(9, response.tagResults().size());
         verify(call).content();
+        verify(request).system(contains(
+                "입력에 \"읽었던\"·\"원작\"·\"해독한\" 중 하나가 있고"));
+        verify(request).system(contains(
+                "입력에 \"시스템 메시지\"·\"임무\"·\"루트\"·\"미션\" 중 하나가 있고"));
         verify(request).options(argThat(
                 options -> "gpt-5-nano".equals(options.build().getModel())));
     }

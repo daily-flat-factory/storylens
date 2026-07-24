@@ -20,7 +20,10 @@ const requestGeneration = async (path, input, signal) => {
     body: JSON.stringify({ input }),
     signal,
   })
-  if (!response.ok) throw new Error(`요청에 실패했습니다. (${response.status})`)
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}))
+    throw new Error(error.message || `요청에 실패했습니다. (${response.status})`)
+  }
   return response.json()
 }
 
