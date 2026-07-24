@@ -146,6 +146,7 @@ class StructureGenerationServiceTest {
         assertEquals(2, response.verification().regenerationCount());
         verify(call, times(3)).content();
         verify(actorEvaluatorService, times(3)).evaluate(any(), any());
+        verify(request, times(3)).user(contains("JSON(json) 스키마"));
         verify(request, times(3)).user(contains("연속된 하나의 세계가 아니라 평행한 별개의 실재"));
         verify(request, times(2)).user(contains("[Actor-Evaluator 교정 지시"));
         verify(request, times(3)).options(argThat(
