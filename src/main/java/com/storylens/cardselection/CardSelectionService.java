@@ -1,5 +1,8 @@
 package com.storylens.cardselection;
 
+import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.options;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -24,6 +27,7 @@ import tools.jackson.databind.ObjectMapper;
 public class CardSelectionService {
 
     private static final Logger logger = LoggerFactory.getLogger(CardSelectionService.class);
+    private static final String MODEL = "gpt-5-mini";
     private static final String RESOURCE_PATH = "prompts/card-selection.txt";
     private static final String USER_INPUT_PLACEHOLDER = "{{user_input}}";
     private static final String CANDIDATE_CARDS_PLACEHOLDER = "{{candidate_cards}}";
@@ -57,12 +61,13 @@ public class CardSelectionService {
 
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
+                    .options(options(MODEL))
                     .user(prompt)
                     .call()
                     .content();
             try {
                 CardSelectionResponse response =
-                        objectMapper.readValue(content, CardSelectionResponse.class);
+                        objectMapper.readValue(clean(content), CardSelectionResponse.class);
                 validate(response, candidateIds);
                 return response;
             } catch (JacksonException | IllegalArgumentException exception) {

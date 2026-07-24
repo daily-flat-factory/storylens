@@ -1,5 +1,8 @@
 package com.storylens.plot;
 
+import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.options;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -28,6 +31,7 @@ import tools.jackson.databind.ObjectMapper;
 public class StructureGenerationService {
 
     private static final Logger logger = LoggerFactory.getLogger(StructureGenerationService.class);
+    private static final String MODEL = "gpt-5.6-luna";
     private static final String PROMPT_PATH = "prompts/structure-generation.txt";
     private static final String FEW_SHOT_PATH = "prompts/style-few-shot-example.txt";
     private static final int MAX_ATTEMPTS = 3;
@@ -100,12 +104,13 @@ public class StructureGenerationService {
     private GenerationResponse generateOutline(String prompt) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
+                    .options(options(MODEL))
                     .user(prompt)
                     .call()
                     .content();
             try {
                 GenerationResponse response =
-                        objectMapper.readValue(content, GenerationResponse.class);
+                        objectMapper.readValue(clean(content), GenerationResponse.class);
                 validate(response);
                 return response;
             } catch (JacksonException | IllegalArgumentException exception) {

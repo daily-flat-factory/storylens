@@ -9,7 +9,7 @@ public record VerificationResponse(
         List<ChecklistItem> checklist,
         @JsonProperty("violated_constraint") String violatedConstraint,
         @JsonProperty("correction_instruction") String correctionInstruction,
-        @JsonProperty("regeneration_count") int regenerationCount) {
+        @JsonProperty("regeneration_count") Integer regenerationCount) {
 
     public VerificationResponse withRegenerationCount(int count) {
         return new VerificationResponse(

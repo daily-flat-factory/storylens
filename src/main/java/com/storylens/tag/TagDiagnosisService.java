@@ -1,5 +1,8 @@
 package com.storylens.tag;
 
+import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.options;
+
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -17,6 +20,7 @@ import tools.jackson.databind.ObjectMapper;
 public class TagDiagnosisService {
 
     private static final Logger logger = LoggerFactory.getLogger(TagDiagnosisService.class);
+    private static final String MODEL = "gpt-5-nano";
     private static final int MAX_ATTEMPTS = 3;
     private static final Set<String> DISPLAY_STRENGTHS =
             Set.of("강하게 감지", "중간 감지", "약하게 감지");
@@ -40,13 +44,14 @@ public class TagDiagnosisService {
     public DiagnosisResponse diagnose(String input) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
+                    .options(options(MODEL))
                     .system(prompt.text())
                     .user(input)
                     .call()
                     .content();
             try {
                 DiagnosisResponse response =
-                        objectMapper.readValue(content, DiagnosisResponse.class);
+                        objectMapper.readValue(clean(content), DiagnosisResponse.class);
                 validate(response);
                 return response;
             } catch (JacksonException | IllegalArgumentException exception) {

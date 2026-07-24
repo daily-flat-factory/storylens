@@ -5,9 +5,7 @@ spring:
     model:
       embedding: none
     openai:
-      api-key: ${GEMINI_API_KEY}
-      base-url: https://generativelanguage.googleapis.com/v1beta/openai
+      api-key: ${LLM_API_KEY}
+      base-url: https://api.openai.com/v1
       chat:
         completions-path: /chat/completions
-        options:
-          model: ${GEMINI_MODEL:gemini-3.6-flash}

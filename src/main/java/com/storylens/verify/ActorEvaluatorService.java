@@ -1,5 +1,8 @@
 package com.storylens.verify;
 
+import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.options;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -24,6 +27,7 @@ import tools.jackson.databind.ObjectMapper;
 public class ActorEvaluatorService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActorEvaluatorService.class);
+    private static final String MODEL = "gpt-5.6-terra";
     private static final String PROMPT_PATH = "prompts/actor-evaluator.txt";
     private static final int MAX_ATTEMPTS = 3;
     private static final int CHECKLIST_SIZE = 7;
@@ -56,12 +60,13 @@ public class ActorEvaluatorService {
         String prompt = renderPrompt(context, scenes);
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
+                    .options(options(MODEL))
                     .user(prompt)
                     .call()
                     .content();
             try {
                 VerificationResponse response =
-                        objectMapper.readValue(content, VerificationResponse.class);
+                        objectMapper.readValue(clean(content), VerificationResponse.class);
                 validate(response);
                 return response;
             } catch (JacksonException | IllegalArgumentException exception) {

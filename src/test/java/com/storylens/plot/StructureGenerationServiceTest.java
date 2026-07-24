@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -51,6 +52,7 @@ class StructureGenerationServiceTest {
         ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
         when(builder.build()).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(request);
+        when(request.options(any())).thenReturn(request);
         when(request.user(anyString())).thenReturn(request);
         when(request.call()).thenReturn(call);
         when(call.content()).thenReturn("not-json");
@@ -88,16 +90,17 @@ class StructureGenerationServiceTest {
     }
 
     @Test
-    void stopsAfterTwoFailedRegenerations() {
+    void parsesJsonCodeFenceAndStopsAfterTwoFailedRegenerations() {
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         ChatClient chatClient = mock(ChatClient.class);
         ChatClient.ChatClientRequestSpec request = mock(ChatClient.ChatClientRequestSpec.class);
         ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
         when(builder.build()).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(request);
+        when(request.options(any())).thenReturn(request);
         when(request.user(anyString())).thenReturn(request);
         when(request.call()).thenReturn(call);
-        when(call.content()).thenReturn(VALID_OUTLINE);
+        when(call.content()).thenReturn("```json\n" + VALID_OUTLINE + "\n```");
 
         TagDiagnosisService diagnosisService = mock(TagDiagnosisService.class);
         CardSelectionService cardSelectionService = mock(CardSelectionService.class);
@@ -143,5 +146,7 @@ class StructureGenerationServiceTest {
         verify(call, times(3)).content();
         verify(actorEvaluatorService, times(3)).evaluate(any(), any());
         verify(request, times(2)).user(contains("[Actor-Evaluator 교정 지시"));
+        verify(request, times(3)).options(argThat(
+                options -> "gpt-5.6-luna".equals(options.build().getModel())));
     }
 }
