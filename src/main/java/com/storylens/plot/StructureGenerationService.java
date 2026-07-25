@@ -97,7 +97,11 @@ public class StructureGenerationService {
             logger.info("Actor-Evaluator 검증 실패 → 재생성 사이클 {}/{} 시작 (사유: {})",
                     regenerationCount, MAX_REGENERATIONS, verification.violatedConstraint());
             outline = generateOutline(
-                    withCorrection(prompt, verification.correctionInstruction()), regenerationCount);
+                    withCorrection(
+                            prompt,
+                            "Actor-Evaluator 교정 지시 — 반드시 반영",
+                            verification.correctionInstruction()),
+                    regenerationCount);
             verification = actorEvaluatorService.evaluate(context, outline.scenes());
         }
         return new GenerationResponse(
@@ -107,10 +111,17 @@ public class StructureGenerationService {
     }
 
     private GenerationResponse generateOutline(String prompt, int regenerationCycle) {
+        String failureReason = null;
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            String attemptPrompt = failureReason == null
+                    ? prompt
+                    : withCorrection(
+                            prompt,
+                            "직전 시도 실패 사유 — 반드시 교정",
+                            failureReason);
             String content = chatClient.prompt()
                     .options(options(MODEL))
-                    .user(prompt)
+                    .user(attemptPrompt)
                     .call()
                     .content();
             logger.debug("구조 생성 LLM 원본 응답 (재생성 {}, 시도 {}/{}): {}",
@@ -123,6 +134,7 @@ public class StructureGenerationService {
             } catch (JacksonException | IllegalArgumentException exception) {
                 logger.warn("유효하지 않은 구조 생성 JSON 응답 (재생성 {}, 시도 {}/{}): {}",
                         regenerationCycle, attempt, MAX_ATTEMPTS, exception.getMessage());
+                failureReason = exception.getMessage();
             }
         }
         throw new ResponseStatusException(
@@ -130,9 +142,9 @@ public class StructureGenerationService {
                 "LLM이 3회 연속 유효한 구조 생성 JSON을 반환하지 않았습니다.");
     }
 
-    private String withCorrection(String prompt, String correctionInstruction) {
+    private String withCorrection(String prompt, String label, String correctionInstruction) {
         return prompt
-                + "\n\n[Actor-Evaluator 교정 지시 — 반드시 반영]\n"
+                + "\n\n[" + label + "]\n"
                 + correctionInstruction;
     }
 

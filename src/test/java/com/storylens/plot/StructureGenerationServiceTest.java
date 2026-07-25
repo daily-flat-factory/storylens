@@ -1,5 +1,6 @@
 package com.storylens.plot;
 
+import static com.storylens.ai.JsonResponseSupport.paragraphCount;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +41,28 @@ class StructureGenerationServiceTest {
                 {"stage":"목표 설정","text":"첫 문단.\\n\\n둘째 문단."},
                 {"stage":"실행","text":"첫 문단.\\n\\n둘째 문단.\\n\\n셋째 문단.\\n\\n넷째 문단."},
                 {"stage":"응징·도달","text":"첫 문단.\\n\\n둘째 문단."}
+              ]
+            }
+            """;
+    private static final String EXECUTION_FIVE_PARAGRAPHS = """
+            {
+              "scenes": [
+                {"stage":"상실","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"회귀·각성","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"목표 설정","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"실행","text":"첫 문단.\\n\\n둘째 문단.\\n\\n셋째 문단.\\n\\n넷째 문단.\\n\\n다섯째 문단."},
+                {"stage":"응징·도달","text":"첫 문단.\\n\\n둘째 문단."}
+              ]
+            }
+            """;
+    private static final String NON_EXECUTION_FIVE_PARAGRAPHS = """
+            {
+              "scenes": [
+                {"stage":"상실","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"회귀·각성","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"목표 설정","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"실행","text":"첫 문단.\\n\\n둘째 문단.\\n\\n셋째 문단.\\n\\n넷째 문단."},
+                {"stage":"응징·도달","text":"첫 문단.\\n\\n둘째 문단.\\n\\n셋째 문단.\\n\\n넷째 문단.\\n\\n다섯째 문단."}
               ]
             }
             """;
@@ -154,10 +177,127 @@ class StructureGenerationServiceTest {
                 "\"응징·도달\"은 5단계 뼈대의 고정 라벨일 뿐"));
         verify(request, times(3)).user(contains(
                 "작은 목표 제시 → 시도 → 예상 밖의 위기·장애 → 극복 또는 부분적 성과"));
+        verify(request, times(3)).user(contains("실행 단계: 반드시 4~6문단."));
         verify(request, times(3)).user(contains(
-                "실행 단계는 반드시 4~6문단, 나머지 네 단계는 반드시 2~4문단"));
+                "나머지 네 단계(상실·회귀·각성·목표 설정·응징·도달): 각각 3문단을 목표로 하되 반드시 2~4문단."));
         verify(request, times(2)).user(contains("[Actor-Evaluator 교정 지시"));
         verify(request, times(3)).options(argThat(
                 options -> "gpt-5.6-luna".equals(options.build().getModel())));
+    }
+
+    @Test
+    void feedsParagraphValidationFailureIntoNextAttempt() {
+        ChatClient.Builder builder = mock(ChatClient.Builder.class);
+        ChatClient chatClient = mock(ChatClient.class);
+        ChatClient.ChatClientRequestSpec request = mock(ChatClient.ChatClientRequestSpec.class);
+        ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
+        when(builder.build()).thenReturn(chatClient);
+        when(chatClient.prompt()).thenReturn(request);
+        when(request.options(any())).thenReturn(request);
+        when(request.user(anyString())).thenReturn(request);
+        when(request.call()).thenReturn(call);
+        when(call.content()).thenReturn(
+                NON_EXECUTION_FIVE_PARAGRAPHS,
+                EXECUTION_FIVE_PARAGRAPHS);
+
+        TagDiagnosisService diagnosisService = mock(TagDiagnosisService.class);
+        CardSelectionService cardSelectionService = mock(CardSelectionService.class);
+        ActorEvaluatorService actorEvaluatorService = mock(ActorEvaluatorService.class);
+        DiagnosisResponse diagnosis = new DiagnosisResponse(List.of(
+                new DiagnosisResponse.TagResult(
+                        "revenge_retribution",
+                        80,
+                        true,
+                        List.of("배신자를 응징한다"),
+                        "강하게 감지")));
+        when(diagnosisService.diagnose(anyString())).thenReturn(diagnosis);
+        when(cardSelectionService.select(anyString(), any()))
+                .thenReturn(new CardSelectionResponse(
+                        List.of(), List.of(), List.of(), List.of()));
+        when(actorEvaluatorService.evaluate(any(), any())).thenReturn(passedVerification());
+
+        ObjectMapper objectMapper = JsonMapper.builder().build();
+        StructureGenerationService service = new StructureGenerationService(
+                diagnosisService,
+                cardSelectionService,
+                new PlotStructureMapper(new TagDefinitionStore(objectMapper)),
+                actorEvaluatorService,
+                builder,
+                objectMapper);
+
+        GenerationResponse response = service.generate("테스트 입력");
+
+        assertEquals(5, paragraphCount(response.scenes().get(3).text()));
+        verify(request, times(2)).user(anyString());
+        verify(request).user(contains(
+                "[직전 시도 실패 사유 — 반드시 교정]\n"
+                        + "응징·도달 장면은 2~4문단이어야 합니다. 실제: 5"));
+    }
+
+    @Test
+    void acceptsFiveParagraphExecutionAndRejectsFiveParagraphOtherStage() {
+        ChatClient.Builder builder = mock(ChatClient.Builder.class);
+        ChatClient chatClient = mock(ChatClient.class);
+        ChatClient.ChatClientRequestSpec request = mock(ChatClient.ChatClientRequestSpec.class);
+        ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
+        when(builder.build()).thenReturn(chatClient);
+        when(chatClient.prompt()).thenReturn(request);
+        when(request.options(any())).thenReturn(request);
+        when(request.user(anyString())).thenReturn(request);
+        when(request.call()).thenReturn(call);
+        when(call.content()).thenReturn(
+                EXECUTION_FIVE_PARAGRAPHS,
+                NON_EXECUTION_FIVE_PARAGRAPHS,
+                NON_EXECUTION_FIVE_PARAGRAPHS,
+                NON_EXECUTION_FIVE_PARAGRAPHS);
+
+        TagDiagnosisService diagnosisService = mock(TagDiagnosisService.class);
+        CardSelectionService cardSelectionService = mock(CardSelectionService.class);
+        ActorEvaluatorService actorEvaluatorService = mock(ActorEvaluatorService.class);
+        DiagnosisResponse diagnosis = new DiagnosisResponse(List.of(
+                new DiagnosisResponse.TagResult(
+                        "revenge_retribution",
+                        80,
+                        true,
+                        List.of("배신자를 응징한다"),
+                        "강하게 감지")));
+        when(diagnosisService.diagnose(anyString())).thenReturn(diagnosis);
+        when(cardSelectionService.select(anyString(), any()))
+                .thenReturn(new CardSelectionResponse(
+                        List.of(), List.of(), List.of(), List.of()));
+        when(actorEvaluatorService.evaluate(any(), any())).thenReturn(passedVerification());
+
+        ObjectMapper objectMapper = JsonMapper.builder().build();
+        StructureGenerationService service = new StructureGenerationService(
+                diagnosisService,
+                cardSelectionService,
+                new PlotStructureMapper(new TagDefinitionStore(objectMapper)),
+                actorEvaluatorService,
+                builder,
+                objectMapper);
+
+        GenerationResponse valid = service.generate("실행 단계 5문단");
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.generate("실행 외 단계 5문단"));
+
+        assertEquals(5, paragraphCount(valid.scenes().get(3).text()));
+        assertEquals(HttpStatus.BAD_GATEWAY, exception.getStatusCode());
+        verify(call, times(4)).content();
+    }
+
+    private VerificationResponse passedVerification() {
+        return new VerificationResponse(
+                "PASS",
+                IntStream.rangeClosed(1, 7)
+                        .mapToObj(number -> new VerificationResponse.ChecklistItem(
+                                number,
+                                "항목 " + number,
+                                "PASS",
+                                "근거"))
+                        .toList(),
+                null,
+                null,
+                0);
     }
 }

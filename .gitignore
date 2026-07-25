@@ -53,6 +53,9 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# ===== 참고자료 =====
+reference/
+
 # ===== 로그 =====
 *.log
 logs/
