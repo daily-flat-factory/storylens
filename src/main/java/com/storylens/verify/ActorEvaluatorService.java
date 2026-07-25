@@ -64,6 +64,7 @@ public class ActorEvaluatorService {
                     .user(prompt)
                     .call()
                     .content();
+            logger.debug("Actor-Evaluator LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
             try {
                 VerificationResponse response =
                         objectMapper.readValue(clean(content), VerificationResponse.class);

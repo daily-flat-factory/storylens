@@ -88,13 +88,16 @@ public class StructureGenerationService {
         StructureContext context = structureMapper.map(diagnosis);
         String prompt = renderPrompt(input, cardSelection, context);
 
-        GenerationResponse outline = generateOutline(prompt);
+        GenerationResponse outline = generateOutline(prompt, 0);
         VerificationResponse verification =
                 actorEvaluatorService.evaluate(context, outline.scenes());
         int regenerationCount = 0;
         while (!verification.passed() && regenerationCount < MAX_REGENERATIONS) {
             regenerationCount++;
-            outline = generateOutline(withCorrection(prompt, verification.correctionInstruction()));
+            logger.info("Actor-Evaluator 검증 실패 → 재생성 사이클 {}/{} 시작 (사유: {})",
+                    regenerationCount, MAX_REGENERATIONS, verification.violatedConstraint());
+            outline = generateOutline(
+                    withCorrection(prompt, verification.correctionInstruction()), regenerationCount);
             verification = actorEvaluatorService.evaluate(context, outline.scenes());
         }
         return new GenerationResponse(
@@ -103,21 +106,23 @@ public class StructureGenerationService {
                 diagnosis);
     }
 
-    private GenerationResponse generateOutline(String prompt) {
+    private GenerationResponse generateOutline(String prompt, int regenerationCycle) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
             String content = chatClient.prompt()
                     .options(options(MODEL))
                     .user(prompt)
                     .call()
                     .content();
+            logger.debug("구조 생성 LLM 원본 응답 (재생성 {}, 시도 {}/{}): {}",
+                    regenerationCycle, attempt, MAX_ATTEMPTS, content);
             try {
                 GenerationResponse response =
                         objectMapper.readValue(clean(content), GenerationResponse.class);
                 validate(response);
                 return response;
             } catch (JacksonException | IllegalArgumentException exception) {
-                logger.warn("유효하지 않은 구조 생성 JSON 응답 (시도 {}/{}): {}",
-                        attempt, MAX_ATTEMPTS, exception.getMessage());
+                logger.warn("유효하지 않은 구조 생성 JSON 응답 (재생성 {}, 시도 {}/{}): {}",
+                        regenerationCycle, attempt, MAX_ATTEMPTS, exception.getMessage());
             }
         }
         throw new ResponseStatusException(

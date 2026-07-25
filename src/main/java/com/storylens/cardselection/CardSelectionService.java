@@ -65,6 +65,7 @@ public class CardSelectionService {
                     .user(prompt)
                     .call()
                     .content();
+            logger.debug("서사 카드 선정 LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
             try {
                 CardSelectionResponse response =
                         objectMapper.readValue(clean(content), CardSelectionResponse.class);

@@ -9,3 +9,9 @@ spring:
       base-url: https://api.openai.com/v1
       chat:
         completions-path: /chat/completions
+
+logging:
+  pattern:
+    console: "%d{HH:mm:ss.SSS} %-5level [%X{reqId}] %logger{36} - %msg%n"
+  level:
+    com.storylens: INFO
