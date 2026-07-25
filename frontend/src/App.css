@@ -182,3 +182,85 @@
     border-right-color: var(--border);
   }
 }
+
+.loading-content {
+  min-width: 0;
+}
+
+.loading-panel .loading-hint {
+  min-height: 1.2rem;
+  margin: 4px 0 2px;
+  color: #8195a7;
+}
+
+.loading-panel .loading-elapsed {
+  margin: 0 0 10px;
+  color: #60778b;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.66rem;
+}
+
+.loading-phases {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px 14px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.loading-phase {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #536779;
+  font-size: 0.66rem;
+  white-space: nowrap;
+}
+
+.loading-phase > span:first-child {
+  width: 0.9rem;
+  color: #536779;
+  text-align: center;
+}
+
+.loading-phase-complete {
+  color: #84b7ad;
+}
+
+.loading-phase-complete > span:first-child {
+  color: #63e6a7;
+}
+
+.loading-phase-active {
+  color: #dce9ee;
+  font-weight: 700;
+}
+
+.loading-phase-active > span:first-child {
+  color: #63e6d5;
+  text-shadow: 0 0 8px rgba(99, 230, 213, 0.55);
+}
+
+.loading-phase-failed {
+  color: #ff9b9d;
+  font-weight: 700;
+}
+
+.loading-phase-failed > span:first-child {
+  color: #ff7f82;
+}
+
+@media (max-width: 640px) {
+  .loading-panel {
+    align-items: start;
+  }
+
+  .loading-phases {
+    gap: 6px 10px;
+  }
+
+  .loading-phase {
+    white-space: normal;
+  }
+}

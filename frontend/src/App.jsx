@@ -1,5 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import './App.css'
+import { PHASE_LABELS } from './loadingMessages'
+import { useLoadingSequence } from './useLoadingSequence'
 
 const TAG_NAMES = {
   regret_retry: '후회/재도전',
@@ -35,6 +38,9 @@ const failureMessage = (outcome) =>
 const strengthLevel = (strength) =>
   strength?.startsWith('강하게') ? 3 : strength?.startsWith('중간') ? 2 : strength?.startsWith('약하게') ? 1 : 0
 
+const elapsedLabel = (seconds) =>
+  seconds < 60 ? `${seconds}초 경과` : `${Math.floor(seconds / 60)}분 ${seconds % 60}초 경과`
+
 function App() {
   const reduceMotion = useReducedMotion()
   const [input, setInput] = useState('')
@@ -43,10 +49,19 @@ function App() {
   const [errors, setErrors] = useState({ before: '', after: '' })
   const [screen, setScreen] = useState('input')
   const [loading, setLoading] = useState(false)
+  const [outcome, setOutcome] = useState(null)
+
+  const completeLoadingSequence = useCallback(() => {
+    setScreen(afterResult ? 'diagnosis' : 'result')
+    setLoading(false)
+    setOutcome(null)
+  }, [afterResult])
+  const loadingSequence = useLoadingSequence(loading, outcome, completeLoadingSequence)
 
   const submit = async (event) => {
     event.preventDefault()
     setLoading(true)
+    setOutcome(null)
     setErrors({ before: '', after: '' })
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 180_000)
@@ -64,10 +79,9 @@ function App() {
         after: after.status === 'rejected' ? failureMessage(after) : '',
         before: before.status === 'rejected' ? failureMessage(before) : '',
       })
-      setScreen(afterValue ? 'diagnosis' : 'result')
+      setOutcome(afterValue ? (beforeValue ? 'success' : 'partial') : 'error')
     } finally {
       clearTimeout(timeout)
-      setLoading(false)
     }
   }
 
@@ -87,6 +101,7 @@ function App() {
     setAfterResult(null)
     setBeforeResult(null)
     setErrors({ before: '', after: '' })
+    setOutcome(null)
     setScreen('input')
   }
 
@@ -154,6 +169,7 @@ function App() {
                 <motion.div
                   className="loading-panel"
                   role="status"
+                  aria-live="off"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                 >
@@ -164,10 +180,50 @@ function App() {
                   >
                     <span />
                   </motion.div>
-                  <div>
-                    <strong>트로프 신호를 추적하고 있습니다</strong>
-                    <p>Before와 After를 함께 생성하므로 최대 몇 분이 걸릴 수 있습니다.</p>
+                  <div className="loading-content">
+                    <strong aria-live="polite">{loadingSequence.title}</strong>
+                    {reduceMotion ? (
+                      <p className="loading-hint" aria-hidden="true">{loadingSequence.hint}</p>
+                    ) : (
+                      <AnimatePresence mode="wait" initial={false}>
+                        <motion.p
+                          key={loadingSequence.hint}
+                          className="loading-hint"
+                          aria-hidden="true"
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          {loadingSequence.hint}
+                        </motion.p>
+                      </AnimatePresence>
+                    )}
+                    <p className="loading-elapsed">
+                      {elapsedLabel(loadingSequence.elapsedSeconds)} · 보통 2분 안팎이 걸립니다
+                    </p>
                     <div className="scan-line"><motion.span animate={{ x: ['-100%', '380%'] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} /></div>
+                    <ol className="loading-phases">
+                      {PHASE_LABELS.map(([id, label]) => {
+                        const state = loadingSequence.failedPhaseId === id
+                          ? 'failed'
+                          : loadingSequence.completedPhaseIds.includes(id)
+                            ? 'complete'
+                            : loadingSequence.phaseId === id
+                              ? 'active'
+                              : 'pending'
+                        const icon = state === 'complete' ? '✓' : state === 'failed' ? '✕' : state === 'active' ? '●' : '○'
+                        return (
+                          <li key={id} className={`loading-phase loading-phase-${state}`}>
+                            <span aria-hidden="true">{icon}</span>
+                            {label}
+                            <span className="sr-only">
+                              {state === 'complete' ? '완료' : state === 'failed' ? '실패' : state === 'active' ? '진행 중' : '대기'}
+                            </span>
+                          </li>
+                        )
+                      })}
+                    </ol>
                   </div>
                 </motion.div>
               )}
