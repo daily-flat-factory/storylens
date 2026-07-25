@@ -24,21 +24,25 @@ import tools.jackson.databind.json.JsonMapper;
 class TagDiagnosisServiceTest {
 
     @Test
-    void stopsAfterThreeInvalidJsonResponses() {
+    void retriesActiveTagsWithoutDisplayStrength() throws Exception {
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         ChatClient chatClient = mock(ChatClient.class);
         ChatClient.ChatClientRequestSpec request = mock(ChatClient.ChatClientRequestSpec.class);
         ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
+        ObjectMapper objectMapper = JsonMapper.builder().build();
+        TagDefinitionStore tagDefinitionStore = new TagDefinitionStore(objectMapper);
         when(builder.build()).thenReturn(chatClient);
         when(chatClient.prompt()).thenReturn(request);
         when(request.options(any())).thenReturn(request);
         when(request.system(anyString())).thenReturn(request);
         when(request.user(anyString())).thenReturn(request);
         when(request.call()).thenReturn(call);
-        when(call.content()).thenReturn("not-json");
+        when(call.content()).thenReturn(objectMapper.writeValueAsString(
+                new DiagnosisResponse(tagDefinitionStore.tagIds().stream()
+                        .map(id -> new DiagnosisResponse.TagResult(
+                                id, 80, true, List.of("근거"), null))
+                        .toList())));
 
-        ObjectMapper objectMapper = JsonMapper.builder().build();
-        TagDefinitionStore tagDefinitionStore = new TagDefinitionStore(objectMapper);
         TagDiagnosisService service = new TagDiagnosisService(
                 builder,
                 objectMapper,

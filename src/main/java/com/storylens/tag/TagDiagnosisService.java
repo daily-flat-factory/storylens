@@ -84,7 +84,8 @@ public class TagDiagnosisService {
                     || result.evidence().isEmpty()
                     || result.evidence().stream()
                             .anyMatch(evidence -> evidence == null || evidence.isBlank())
-                    || (result.active() && !DISPLAY_STRENGTHS.contains(result.displayStrength()))) {
+                    || (result.active() && (result.displayStrength() == null
+                            || !DISPLAY_STRENGTHS.contains(result.displayStrength())))) {
                 throw new IllegalArgumentException("태그 결과가 진단 스키마를 충족하지 않습니다.");
             }
         }

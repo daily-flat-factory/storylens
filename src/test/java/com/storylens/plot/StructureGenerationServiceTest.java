@@ -38,7 +38,7 @@ class StructureGenerationServiceTest {
                 {"stage":"상실","text":"첫 문단.\\n\\n둘째 문단."},
                 {"stage":"회귀·각성","text":"첫 문단.\\n\\n둘째 문단."},
                 {"stage":"목표 설정","text":"첫 문단.\\n\\n둘째 문단."},
-                {"stage":"실행","text":"첫 문단.\\n\\n둘째 문단."},
+                {"stage":"실행","text":"첫 문단.\\n\\n둘째 문단.\\n\\n셋째 문단.\\n\\n넷째 문단."},
                 {"stage":"응징·도달","text":"첫 문단.\\n\\n둘째 문단."}
               ]
             }
@@ -148,6 +148,14 @@ class StructureGenerationServiceTest {
         verify(actorEvaluatorService, times(3)).evaluate(any(), any());
         verify(request, times(3)).user(contains("JSON(json) 스키마"));
         verify(request, times(3)).user(contains("연속된 하나의 세계가 아니라 평행한 별개의 실재"));
+        verify(request, times(3)).user(contains(
+                "[사용자 원본 설정]에 이미 등장하는 인물명·고유명사는 절대 바꾸지"));
+        verify(request, times(3)).user(contains(
+                "\"응징·도달\"은 5단계 뼈대의 고정 라벨일 뿐"));
+        verify(request, times(3)).user(contains(
+                "작은 목표 제시 → 시도 → 예상 밖의 위기·장애 → 극복 또는 부분적 성과"));
+        verify(request, times(3)).user(contains(
+                "실행 단계는 반드시 4~6문단, 나머지 네 단계는 반드시 2~4문단"));
         verify(request, times(2)).user(contains("[Actor-Evaluator 교정 지시"));
         verify(request, times(3)).options(argThat(
                 options -> "gpt-5.6-luna".equals(options.build().getModel())));

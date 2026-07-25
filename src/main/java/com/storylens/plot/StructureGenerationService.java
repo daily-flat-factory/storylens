@@ -177,9 +177,12 @@ public class StructureGenerationService {
                 throw new IllegalArgumentException("5개 장면의 단계명과 텍스트가 올바르지 않습니다.");
             }
             int paragraphs = paragraphCount(scene.text());
-            if (paragraphs < 2 || paragraphs > 4) {
+            int minimum = "실행".equals(scene.stage()) ? 4 : 2;
+            int maximum = "실행".equals(scene.stage()) ? 6 : 4;
+            if (paragraphs < minimum || paragraphs > maximum) {
                 throw new IllegalArgumentException(
-                        scene.stage() + " 장면은 2~4문단이어야 합니다. 실제: " + paragraphs);
+                        scene.stage() + " 장면은 " + minimum + "~" + maximum
+                                + "문단이어야 합니다. 실제: " + paragraphs);
             }
         }
     }
