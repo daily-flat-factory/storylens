@@ -126,12 +126,8 @@ function App() {
       <div className="app-frame">
         <header className="app-header">
           <div>
-            <p className="eyebrow"><span>◆</span> 웹소설 창작 가드레일</p>
+            <p className="eyebrow">웹소설 창작 가드레일</p>
             <h1>Story<span>Lens</span></h1>
-          </div>
-          <div className="system-badge" aria-label="시스템 준비 완료">
-            <span className="status-dot" />
-            SYSTEM READY
           </div>
         </header>
 
@@ -141,16 +137,12 @@ function App() {
               <div className="panel-heading">
                 <span className="panel-number">01</span>
                 <div>
-                  <p>STORY SCAN</p>
+                  <p>원고 접수</p>
                   <h2>이야기 설정을 입력하세요</h2>
                 </div>
               </div>
               <label htmlFor="story-input" className="sr-only">이야기 설정</label>
               <div className="textarea-frame">
-                <span className="corner corner-tl" />
-                <span className="corner corner-tr" />
-                <span className="corner corner-bl" />
-                <span className="corner corner-br" />
                 <textarea
                   id="story-input"
                   required
@@ -159,74 +151,11 @@ function App() {
                   onChange={(event) => setInput(event.target.value)}
                   placeholder="주인공, 상황, 그리고 이루려는 목표를 입력하세요."
                 />
-                <span className="input-hint">INPUT / NARRATIVE PROFILE</span>
+                <span className="input-hint">{input.length.toLocaleString('ko-KR')}자</span>
               </div>
               <button type="submit" disabled={loading} className="primary-button">
-                {loading ? '분석 시퀀스 실행 중' : 'StoryLens 비교 시작'}
-                <span aria-hidden="true">{loading ? '···' : '→'}</span>
+                {loading ? '구조 분석 중…' : '구조 분석 시작'}
               </button>
-              {loading && (
-                <motion.div
-                  className="loading-panel"
-                  role="status"
-                  aria-live="off"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <motion.div
-                    className="loader-orbit"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.8, repeat: Infinity, ease: 'linear' }}
-                  >
-                    <span />
-                  </motion.div>
-                  <div className="loading-content">
-                    <strong aria-live="polite">{loadingSequence.title}</strong>
-                    {reduceMotion ? (
-                      <p className="loading-hint" aria-hidden="true">{loadingSequence.hint}</p>
-                    ) : (
-                      <AnimatePresence mode="wait" initial={false}>
-                        <motion.p
-                          key={loadingSequence.hint}
-                          className="loading-hint"
-                          aria-hidden="true"
-                          initial={{ opacity: 0, y: 4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          transition={{ duration: 0.25 }}
-                        >
-                          {loadingSequence.hint}
-                        </motion.p>
-                      </AnimatePresence>
-                    )}
-                    <p className="loading-elapsed">
-                      {elapsedLabel(loadingSequence.elapsedSeconds)} · 보통 2분 안팎이 걸립니다
-                    </p>
-                    <div className="scan-line"><motion.span animate={{ x: ['-100%', '380%'] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} /></div>
-                    <ol className="loading-phases">
-                      {PHASE_LABELS.map(([id, label]) => {
-                        const state = loadingSequence.failedPhaseId === id
-                          ? 'failed'
-                          : loadingSequence.completedPhaseIds.includes(id)
-                            ? 'complete'
-                            : loadingSequence.phaseId === id
-                              ? 'active'
-                              : 'pending'
-                        const icon = state === 'complete' ? '✓' : state === 'failed' ? '✕' : state === 'active' ? '●' : '○'
-                        return (
-                          <li key={id} className={`loading-phase loading-phase-${state}`}>
-                            <span aria-hidden="true">{icon}</span>
-                            {label}
-                            <span className="sr-only">
-                              {state === 'complete' ? '완료' : state === 'failed' ? '실패' : state === 'active' ? '진행 중' : '대기'}
-                            </span>
-                          </li>
-                        )
-                      })}
-                    </ol>
-                  </div>
-                </motion.div>
-              )}
             </motion.form>
           )}
 
@@ -234,16 +163,16 @@ function App() {
             <motion.section key="diagnosis" className="diagnosis-screen" {...screenMotion}>
               <div className="screen-title">
                 <div>
-                  <p className="eyebrow"><span>◆</span> TROPE ANALYSIS COMPLETE</p>
-                  <h2>서사 상태창</h2>
+                  <p className="eyebrow">트로프 분석 완료</p>
+                  <h2>서사 진단표</h2>
                 </div>
-                <span className="result-count">09 TAGS SCANNED</span>
+                <span className="result-count">태그 9개 분석</span>
               </div>
 
               <div className="status-window">
                 <div className="status-window-top">
-                  <span>STORYLENS / NARRATIVE STATUS</span>
-                  <span>ACTIVE SIGNALS HIGHLIGHTED</span>
+                  <span>StoryLens 진단 결과</span>
+                  <span>감지된 특성 표시</span>
                 </div>
                 <motion.div className="tag-grid" variants={listMotion} initial="initial" animate="animate">
                   {afterResult.diagnosis.tag_results.map((tag, index) => {
@@ -260,7 +189,7 @@ function App() {
                         <div className="tag-body">
                           <div className="tag-heading">
                             <h3>{TAG_NAMES[tag.tag_id] || tag.tag_id}</h3>
-                            <span className="tag-state">{tag.is_active ? 'DETECTED' : 'DORMANT'}</span>
+                            <span className="tag-state">{tag.is_active ? '감지' : '미감지'}</span>
                           </div>
                           <div className="strength-row">
                             <span>{strength}</span>
@@ -280,7 +209,7 @@ function App() {
                 </motion.div>
               </div>
               <button type="button" onClick={() => setScreen('result')} className="primary-button next-button">
-                Before / After 비교 보기 <span aria-hidden="true">→</span>
+                생성 결과 비교 보기
               </button>
             </motion.section>
           )}
@@ -289,12 +218,12 @@ function App() {
             <motion.section key="result" className="comparison-screen" {...screenMotion}>
               <div className="screen-title comparison-heading">
                 <div>
-                  <p className="eyebrow"><span>◆</span> NARRATIVE COMPARISON</p>
-                  <h2>Before / After</h2>
+                  <p className="eyebrow">서사 비교</p>
+                  <h2>생성 결과 비교</h2>
                 </div>
                 {afterResult && (
                   <button type="button" onClick={download} className="secondary-button">
-                    After 텍스트 다운로드 <span aria-hidden="true">↓</span>
+                    StoryLens 결과 다운로드
                   </button>
                 )}
               </div>
@@ -310,7 +239,7 @@ function App() {
                   <motion.div className="column-header" variants={itemMotion}>
                     <span className="column-mark">B</span>
                     <div>
-                      <h3 id="before-title">Before <small>일반 생성</small></h3>
+                      <h3 id="before-title">일반 생성 <small>비교 기준</small></h3>
                       <p>구조 가드레일과 자체 검증 없음</p>
                     </div>
                   </motion.div>
@@ -334,10 +263,10 @@ function App() {
                   <motion.div className="column-header" variants={itemMotion}>
                     <span className="column-mark">A</span>
                     <div>
-                      <h3 id="after-title">After <small>StoryLens</small></h3>
+                      <h3 id="after-title">StoryLens <small>구조 분석</small></h3>
                       <p>구조 진단 · 고정 조건 · 자체 검증 적용</p>
                     </div>
-                    <span className="guardrail-badge">GUARDRAIL ON</span>
+                    <span className="guardrail-badge">가드레일 적용</span>
                   </motion.div>
                   {errors.after && <p className="error-message" role="alert">{errors.after}</p>}
                   {afterResult?.scenes.map((scene, index) => (
@@ -352,11 +281,11 @@ function App() {
                     <motion.section className="verification-panel" variants={itemMotion}>
                       <div className="verification-heading">
                         <div>
-                          <span>ACTOR–EVALUATOR</span>
+                          <span>생성 결과 자체 검증</span>
                           <h4>가드레일 자체 검증</h4>
                         </div>
                         <strong className={afterResult.verification.overall_pass_fail === 'PASS' ? 'pass' : 'fail'}>
-                          {afterResult.verification.overall_pass_fail === 'PASS' ? '✓' : '✕'} {afterResult.verification.overall_pass_fail}
+                          {afterResult.verification.overall_pass_fail === 'PASS' ? '✓ 통과' : '✕ 실패'}
                         </strong>
                       </div>
                       <motion.ul variants={listMotion}>
@@ -364,7 +293,7 @@ function App() {
                           const passed = item.pass_fail === 'PASS'
                           return (
                             <motion.li key={item.item_number} variants={itemMotion}>
-                              <span className={`check-icon ${passed ? 'pass' : 'fail'}`} aria-label={item.pass_fail}>
+                              <span className={`check-icon ${passed ? 'pass' : 'fail'}`} aria-label={passed ? '통과' : '실패'}>
                                 {passed ? '✓' : '✕'}
                               </span>
                               <div>
@@ -386,6 +315,72 @@ function App() {
             </motion.section>
           )}
         </AnimatePresence>
+        {loading && (
+          <motion.div
+            className="loading-overlay"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="loading-title"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+          >
+            <div className="loading-panel" role="status" aria-live="off">
+              <motion.div
+                className="loader-orbit"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'linear' }}
+              >
+                <span />
+              </motion.div>
+              <div className="loading-content">
+                <strong id="loading-title" aria-live="polite">{loadingSequence.title}</strong>
+                {reduceMotion ? (
+                  <p className="loading-hint" aria-hidden="true">{loadingSequence.hint}</p>
+                ) : (
+                  <AnimatePresence mode="wait" initial={false}>
+                    <motion.p
+                      key={loadingSequence.hint}
+                      className="loading-hint"
+                      aria-hidden="true"
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      {loadingSequence.hint}
+                    </motion.p>
+                  </AnimatePresence>
+                )}
+                <p className="loading-elapsed">
+                  {elapsedLabel(loadingSequence.elapsedSeconds)} · 보통 2분 안팎이 걸립니다
+                </p>
+                <div className="scan-line"><motion.span animate={{ x: ['-100%', '380%'] }} transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }} /></div>
+                <ol className="loading-phases">
+                  {PHASE_LABELS.map(([id, label]) => {
+                    const state = loadingSequence.failedPhaseId === id
+                      ? 'failed'
+                      : loadingSequence.completedPhaseIds.includes(id)
+                        ? 'complete'
+                        : loadingSequence.phaseId === id
+                          ? 'active'
+                          : 'pending'
+                    const icon = state === 'complete' ? '✓' : state === 'failed' ? '✕' : state === 'active' ? '●' : '○'
+                    return (
+                      <li key={id} className={`loading-phase loading-phase-${state}`}>
+                        <span aria-hidden="true">{icon}</span>
+                        {label}
+                        <span className="sr-only">
+                          {state === 'complete' ? '완료' : state === 'failed' ? '실패' : state === 'active' ? '진행 중' : '대기'}
+                        </span>
+                      </li>
+                    )
+                  })}
+                </ol>
+              </div>
+            </div>
+          </motion.div>
+        )}
       </div>
     </main>
   )
