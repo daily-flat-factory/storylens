@@ -1,6 +1,7 @@
 package com.storylens.verify;
 
 import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.llmCallFailed;
 import static com.storylens.ai.JsonResponseSupport.options;
 
 import java.io.IOException;
@@ -59,13 +60,13 @@ public class ActorEvaluatorService {
             List<GenerationResponse.Scene> scenes) {
         String prompt = renderPrompt(context, scenes);
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            String content = chatClient.prompt()
-                    .options(options(MODEL))
-                    .user(prompt)
-                    .call()
-                    .content();
-            logger.debug("Actor-Evaluator LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
             try {
+                String content = chatClient.prompt()
+                        .options(options(MODEL))
+                        .user(prompt)
+                        .call()
+                        .content();
+                logger.debug("Actor-Evaluator LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
                 VerificationResponse response =
                         objectMapper.readValue(clean(content), VerificationResponse.class);
                 validate(response);
@@ -73,6 +74,10 @@ public class ActorEvaluatorService {
             } catch (JacksonException | IllegalArgumentException exception) {
                 logger.warn("유효하지 않은 Actor-Evaluator JSON 응답 (시도 {}/{}): {}",
                         attempt, MAX_ATTEMPTS, exception.getMessage());
+            } catch (RuntimeException exception) {
+                logger.warn("Actor-Evaluator LLM 호출 실패 (시도 {}/{}): {}",
+                        attempt, MAX_ATTEMPTS, exception.toString());
+                throw llmCallFailed("자체 검증", exception);
             }
         }
         throw new ResponseStatusException(

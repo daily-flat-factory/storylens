@@ -1,6 +1,7 @@
 package com.storylens.cardselection;
 
 import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.llmCallFailed;
 import static com.storylens.ai.JsonResponseSupport.options;
 
 import java.io.IOException;
@@ -60,13 +61,13 @@ public class CardSelectionService {
         String prompt = renderPrompt(input, candidates);
 
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            String content = chatClient.prompt()
-                    .options(options(MODEL))
-                    .user(prompt)
-                    .call()
-                    .content();
-            logger.debug("서사 카드 선정 LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
             try {
+                String content = chatClient.prompt()
+                        .options(options(MODEL))
+                        .user(prompt)
+                        .call()
+                        .content();
+                logger.debug("서사 카드 선정 LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
                 CardSelectionResponse response =
                         objectMapper.readValue(clean(content), CardSelectionResponse.class);
                 validate(response, candidateIds);
@@ -74,6 +75,10 @@ public class CardSelectionService {
             } catch (JacksonException | IllegalArgumentException exception) {
                 logger.warn("유효하지 않은 서사 카드 선정 JSON 응답 (시도 {}/{}): {}",
                         attempt, MAX_ATTEMPTS, exception.getMessage());
+            } catch (RuntimeException exception) {
+                logger.warn("서사 카드 선정 LLM 호출 실패 (시도 {}/{}): {}",
+                        attempt, MAX_ATTEMPTS, exception.toString());
+                throw llmCallFailed("참조 서사 카드 선정", exception);
             }
         }
         throw new ResponseStatusException(

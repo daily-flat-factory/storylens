@@ -1,6 +1,7 @@
 package com.storylens.plot;
 
 import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.llmCallFailed;
 import static com.storylens.ai.JsonResponseSupport.options;
 import static com.storylens.ai.JsonResponseSupport.paragraphCount;
 
@@ -119,14 +120,14 @@ public class StructureGenerationService {
                             prompt,
                             "직전 시도 실패 사유 — 반드시 교정",
                             failureReason);
-            String content = chatClient.prompt()
-                    .options(options(MODEL))
-                    .user(attemptPrompt)
-                    .call()
-                    .content();
-            logger.debug("구조 생성 LLM 원본 응답 (재생성 {}, 시도 {}/{}): {}",
-                    regenerationCycle, attempt, MAX_ATTEMPTS, content);
             try {
+                String content = chatClient.prompt()
+                        .options(options(MODEL))
+                        .user(attemptPrompt)
+                        .call()
+                        .content();
+                logger.debug("구조 생성 LLM 원본 응답 (재생성 {}, 시도 {}/{}): {}",
+                        regenerationCycle, attempt, MAX_ATTEMPTS, content);
                 GenerationResponse response =
                         objectMapper.readValue(clean(content), GenerationResponse.class);
                 validate(response);
@@ -135,6 +136,10 @@ public class StructureGenerationService {
                 logger.warn("유효하지 않은 구조 생성 JSON 응답 (재생성 {}, 시도 {}/{}): {}",
                         regenerationCycle, attempt, MAX_ATTEMPTS, exception.getMessage());
                 failureReason = exception.getMessage();
+            } catch (RuntimeException exception) {
+                logger.warn("구조 생성 LLM 호출 실패 (재생성 {}, 시도 {}/{}): {}",
+                        regenerationCycle, attempt, MAX_ATTEMPTS, exception.toString());
+                throw llmCallFailed("구조 고정 생성", exception);
             }
         }
         throw new ResponseStatusException(

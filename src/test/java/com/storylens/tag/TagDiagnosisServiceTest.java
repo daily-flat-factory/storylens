@@ -58,6 +58,37 @@ class TagDiagnosisServiceTest {
     }
 
     @Test
+    void failsFastWithoutRetryWhenLlmCallIsCanceled() {
+        ChatClient.Builder builder = mock(ChatClient.Builder.class);
+        ChatClient chatClient = mock(ChatClient.class);
+        ChatClient.ChatClientRequestSpec request = mock(ChatClient.ChatClientRequestSpec.class);
+        ChatClient.CallResponseSpec call = mock(ChatClient.CallResponseSpec.class);
+        ObjectMapper objectMapper = JsonMapper.builder().build();
+        TagDefinitionStore tagDefinitionStore = new TagDefinitionStore(objectMapper);
+        when(builder.build()).thenReturn(chatClient);
+        when(chatClient.prompt()).thenReturn(request);
+        when(request.options(any())).thenReturn(request);
+        when(request.system(anyString())).thenReturn(request);
+        when(request.user(anyString())).thenReturn(request);
+        when(request.call()).thenReturn(call);
+        when(call.content()).thenThrow(new IllegalStateException("Request failed: Canceled"));
+
+        TagDiagnosisService service = new TagDiagnosisService(
+                builder,
+                objectMapper,
+                new TagDiagnosisPrompt(tagDefinitionStore),
+                tagDefinitionStore);
+
+        ResponseStatusException exception = assertThrows(
+                ResponseStatusException.class,
+                () -> service.diagnose("테스트 입력"));
+
+        // Spring AI가 이미 내부 재시도를 마친 뒤이므로 우리 루프는 즉시 502로 끝낸다.
+        assertEquals(HttpStatus.BAD_GATEWAY, exception.getStatusCode());
+        verify(call, times(1)).content();
+    }
+
+    @Test
     void parsesJsonCodeFence() throws Exception {
         ChatClient.Builder builder = mock(ChatClient.Builder.class);
         ChatClient chatClient = mock(ChatClient.class);

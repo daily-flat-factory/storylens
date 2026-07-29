@@ -2,12 +2,21 @@ spring:
   application:
     name: storylens
   ai:
+    # 기본값(재시도 10회, 백오프 배수 5)은 한 호출이 4분 넘게 늘어질 수 있어 요청 제한을 소진한다.
+    # 재시도를 2회로 묶고 백오프 상한을 5초로 두어 실패가 빠르게 드러나게 한다.
+    retry:
+      max-attempts: 2
+      backoff:
+        initial-interval: 1s
+        max-interval: 5s
     model:
       embedding: none
     openai:
       api-key: ${LLM_API_KEY}
       base-url: https://api.openai.com/v1
       chat:
+        # 태그 진단이 정상일 때도 35~42초가 걸려 기본 60초는 여유가 없다.
+        timeout: 120s
         completions-path: /chat/completions
 
 logging:

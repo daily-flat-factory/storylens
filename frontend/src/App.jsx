@@ -64,7 +64,8 @@ function App() {
     setOutcome(null)
     setErrors({ before: '', after: '' })
     const controller = new AbortController()
-    const timeout = setTimeout(() => controller.abort(), 180_000)
+    // Cloud Run 요청 제한(600초)보다 짧게 두어 서버가 먼저 응답을 정리하도록 한다.
+    const timeout = setTimeout(() => controller.abort(), 570_000)
 
     try {
       const [after, before] = await Promise.allSettled([

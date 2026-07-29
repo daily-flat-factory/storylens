@@ -1,6 +1,7 @@
 package com.storylens.tag;
 
 import static com.storylens.ai.JsonResponseSupport.clean;
+import static com.storylens.ai.JsonResponseSupport.llmCallFailed;
 import static com.storylens.ai.JsonResponseSupport.options;
 
 import java.util.Set;
@@ -43,14 +44,14 @@ public class TagDiagnosisService {
 
     public DiagnosisResponse diagnose(String input) {
         for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-            String content = chatClient.prompt()
-                    .options(options(MODEL))
-                    .system(prompt.text())
-                    .user(input)
-                    .call()
-                    .content();
-            logger.debug("태그 진단 LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
             try {
+                String content = chatClient.prompt()
+                        .options(options(MODEL))
+                        .system(prompt.text())
+                        .user(input)
+                        .call()
+                        .content();
+                logger.debug("태그 진단 LLM 원본 응답 (시도 {}/{}): {}", attempt, MAX_ATTEMPTS, content);
                 DiagnosisResponse response =
                         objectMapper.readValue(clean(content), DiagnosisResponse.class);
                 validate(response);
@@ -58,6 +59,10 @@ public class TagDiagnosisService {
             } catch (JacksonException | IllegalArgumentException exception) {
                 logger.warn("유효하지 않은 태그 진단 JSON 응답 (시도 {}/{}): {}",
                         attempt, MAX_ATTEMPTS, exception.getMessage());
+            } catch (RuntimeException exception) {
+                logger.warn("태그 진단 LLM 호출 실패 (시도 {}/{}): {}",
+                        attempt, MAX_ATTEMPTS, exception.toString());
+                throw llmCallFailed("태그 진단", exception);
             }
         }
         throw new ResponseStatusException(
